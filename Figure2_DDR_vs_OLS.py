@@ -206,6 +206,6 @@ if __name__ == "__main__":
                                 all_h2h_olsspo=all_h2h_olsspo,all_mci_olsspo=all_mci_olsspo,all_pio_olsspo=all_pio_olsspo,\
                                 all_h2h_ddrols=all_h2h_ddrols,all_mci_ddrols=all_mci_ddrols,all_pio_ddrols=all_pio_ddrols)
 
-    # regret_h2h_fig = regret_h2h()
-    # regret_h2h_fig.figure_plot_upleft(all_h2h_ddrols, all_mci_ddrols, figure_name = '411_ddr_ols', size = (5, 5), move = [-0.10, 0.04, 0.30, 0.55])
+    regret_h2h_fig = regret_h2h()
+    regret_h2h_fig.figure_plot_upleft(all_h2h_ddrols, all_mci_ddrols, figure_name = '411_ddr_ols', size = (5, 5), move = [-0.10, 0.04, 0.30, 0.55])
 

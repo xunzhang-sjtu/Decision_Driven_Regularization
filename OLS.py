@@ -2,6 +2,11 @@ import time
 from gurobipy import *
 import numpy as np
 import pickle
+from sklearn.linear_model import MultiTaskLassoCV
+from sklearn.model_selection import RepeatedKFold
+from sklearn.linear_model import RidgeCV
+
+import warnings
 
 class ols_method:
     def __init__(self):
@@ -57,3 +62,33 @@ class ols_method:
         end = time.time()
 
         return W_results, w0_results, end-start, m.ObjVal
+    
+    def lasso_solver(self,x_train, z_train):
+    #     x_train = data[3]
+    #     z_train = data[5]
+        start = time.time()
+        cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
+        # define model
+        model = MultiTaskLassoCV(alphas=np.arange(0, 1, 0.01), cv=cv, n_jobs=-1)
+        # fit model
+        warnings.filterwarnings("ignore")
+        model.fit(x_train, z_train)
+        W_results = model.coef_
+        w0_results = model.intercept_
+        end = time.time()
+        return W_results, w0_results, end-start
+    
+    def ridge_solver(self,x_train, z_train):
+    #     x_train = data[3]
+    #     z_train = data[5]
+        start = time.time()
+        cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
+        # define model
+        model = RidgeCV(alphas=np.arange(0, 5, 0.1), fit_intercept=True, cv=cv)
+        # fit model
+        warnings.filterwarnings("ignore")
+        model.fit(x_train, z_train)
+        W_results = model.coef_
+        w0_results = model.intercept_
+        end = time.time()
+        return W_results, w0_results, end-start
