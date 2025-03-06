@@ -1,1 +1,4 @@
 requirements.txt
+.vscode
+.DS_Store
+.gitignore

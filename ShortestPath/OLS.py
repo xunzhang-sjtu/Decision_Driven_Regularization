@@ -5,6 +5,7 @@ import pickle
 from sklearn.linear_model import MultiTaskLassoCV
 from sklearn.model_selection import RepeatedKFold
 from sklearn.linear_model import RidgeCV
+from Shortest_Path_Model import My_ShortestPathModel
 
 import warnings
 
@@ -92,3 +93,31 @@ class ols_method:
         w0_results = model.intercept_
         end = time.time()
         return W_results, w0_results, end-start
+    
+class run_OLS_Shortest_Path:
+    def __init__(self):
+        pass
+    # from pyepo import EPO
+    def obtain_OLS_Cost(self,arcs,w0_ols,W_ols, grid,dataloader):
+        full_shortest_model = My_ShortestPathModel()
+
+        # evaluate
+        cost_pred_arr = []
+        # load data
+        for data in dataloader:
+            x, c, w, z = data
+            feature = x.numpy()
+            # print("Feature Shape = ",np.shape(feature)[0])
+            for j in range(np.shape(feature)[0]):
+                cost = W_ols @ feature[j,:] + w0_ols
+                sol_pred = full_shortest_model.solve_Shortest_Path(arcs,cost,grid)
+                cost_pred = np.dot(sol_pred, c[j].to("cpu").detach().numpy())
+                cost_pred_arr.append(cost_pred)
+        # print("Average OLS Cost = ", np.mean(cost_pred_arr))
+        return cost_pred_arr
+    
+    def run(self,arcs,x_train, c_train, grid,loader_test):
+        ols_method_obj = ols_method()
+        W_ols, w0_ols, t_ols, obj_ols = ols_method_obj.ols_solver("",x_train, c_train)
+        cost_OLS = self.obtain_OLS_Cost(arcs,w0_ols,W_ols, grid,loader_test)
+        return cost_OLS
