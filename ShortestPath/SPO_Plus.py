@@ -142,7 +142,7 @@ class run_SPO_Shortest_Path:
         reg.train()
 
         cost_pred_arr = self.evaluation_SPO(reg, loader_test,arcs,grid)
-        print("epoch 0: Average SPO Cost = ", np.mean(cost_pred_arr))
+        # print("epoch 0: Average SPO Cost = ", np.mean(cost_pred_arr))
         # init elpased time
         elapsed = 0
         for epoch in range(num_epochs):
@@ -166,7 +166,7 @@ class run_SPO_Shortest_Path:
                 elapsed += tock - tick
                 # log
             cost_pred_arr = self.evaluation_SPO(reg, loader_test,arcs,grid)
-            print("epoch = ",epoch," Average SPO Cost = ", np.mean(cost_pred_arr))
+            # print("epoch = ",epoch," Average SPO Cost = ", np.mean(cost_pred_arr))
         return cost_pred_arr
 
     def run(self,x_train,c_train,x_test,c_test,batch_size,num_feat,grid,num_epochs,is_run_SPO):
@@ -187,7 +187,7 @@ class run_SPO_Shortest_Path:
 
         # Obtain oracle cost
         cost_Oracle = self.evaluation_True(loader_test)
-        print("oracle cost = ",np.nanmean(cost_Oracle))
+        # print("oracle cost = ",np.nanmean(cost_Oracle))
         # Obtain SPO cost
         if is_run_SPO:
             spop = pyepo.func.SPOPlus(optmodel, processes=2)
