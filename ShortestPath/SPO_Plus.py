@@ -3,6 +3,7 @@ from pyepo.model.grb import optGrbModel
 import pyepo
 import numpy as np
 from Shortest_Path_Model import My_ShortestPathModel
+import pickle
 
 class shortestPathModel(optGrbModel):
 
@@ -169,7 +170,7 @@ class run_SPO_Shortest_Path:
             # print("epoch = ",epoch," Average SPO Cost = ", np.mean(cost_pred_arr))
         return cost_pred_arr
 
-    def run(self,x_train,c_train,x_test,c_test,batch_size,num_feat,grid,num_epochs,is_run_SPO):
+    def run(self,DataPath_seed,x_train,c_train,x_test,c_test,batch_size,num_feat,grid,num_epochs,is_run_SPO):
         # print("Hello world")
         # 在这里实例化 shortestpathModel
         optmodel = shortestPathModel()
@@ -195,4 +196,11 @@ class run_SPO_Shortest_Path:
         else:
             cost_SPO = 0
 
+        rst_Oracel = {"cost":cost_Oracle}
+        rst_SPO = {"cost":cost_SPO}
+
+        with open(DataPath_seed +'rst_Oracel.pkl', "wb") as tf:
+            pickle.dump(rst_Oracel,tf)
+        with open(DataPath_seed +'rst_SPO.pkl', "wb") as tf:
+            pickle.dump(rst_SPO,tf)
         return arcs,loader_train,loader_test,cost_Oracle,cost_SPO

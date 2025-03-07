@@ -74,8 +74,26 @@ class run_DDR_Shortest_Path:
         # print("Average OLS Cost = ", np.mean(cost_pred_arr))
         return cost_pred_arr
     
-    def run(self,arcs,x_train, c_train, grid,loader_test,lamb,mu,num_nodes):
+    def run(self,DataPath_seed,lamb_arr,mu_arr,arcs,x_train, c_train, grid,loader_test,num_nodes=25):
         ddr_obj = DDR_method()
-        w0_ddr_val,W_ddr_val = ddr_obj.solve_DDR(arcs,lamb,mu,num_nodes,x_train,c_train)
-        cost_DDR_arr = self.obtain_DDR_Cost(arcs,w0_ddr_val,W_ddr_val, grid,loader_test)
-        return cost_DDR_arr
+        # w0_ddr_val,W_ddr_val = ddr_obj.solve_DDR(arcs,lamb,mu,num_nodes,x_train,c_train)
+        # cost_DDR_arr = self.obtain_DDR_Cost(arcs,w0_ddr_val,W_ddr_val, grid,loader_test)
+
+        rst_all = {}
+        for lamb in lamb_arr:
+            # print("======== lambda = ",lamb,"============")
+            for mu in mu_arr:
+                rst = {}
+                # num_nodes = 25
+                # w0_ddr_val,W_ddr_val = solve_DDR(lamb,mu,num_nodes,x_train,c_train)
+                # cost_DDR = DDR_runner.run(arcs,x_train, c_train, grid,loader_test,lamb,mu,num_nodes)
+                w0_ddr_val,W_ddr_val = ddr_obj.solve_DDR(arcs,lamb,mu,num_nodes,x_train,c_train)
+                cost_DDR_arr = self.obtain_DDR_Cost(arcs,w0_ddr_val,W_ddr_val, grid,loader_test)
+                rst["w0"] = w0_ddr_val
+                rst["W"] = W_ddr_val
+                rst["cost"] = cost_DDR_arr
+                rst_all[lamb,mu] = rst
+        with open(DataPath_seed +'rst_DDR.pkl', "wb") as tf:
+            pickle.dump(rst_all,tf)
+
+        return rst_all
