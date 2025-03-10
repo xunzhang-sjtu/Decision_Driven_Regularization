@@ -6,7 +6,7 @@ class data_generation:
     def __init__(self):
         pass
 
-    def generate_truth(self,file_path,lower,upper,p,d, version):
+    def generate_truth(self,file_path,lower,upper,p,d, seed,version):
         # p number of feature; 
         # d number of routes
         # B_star is w in the paper
@@ -15,7 +15,8 @@ class data_generation:
         # version 1: each component is bernoulli with prob == 0.5
         # version 2: W* = (W^0,0)
         # version 3: W* = (W sparse, 0)
-        #     random.seed(seed)
+        # np.random.seed(seed)
+        np.random.seed(seed)
         if version == 0:
             W_star = np.random.uniform(lower,upper,(d,p))
         elif version == 1:
