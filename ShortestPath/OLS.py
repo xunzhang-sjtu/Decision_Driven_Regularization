@@ -116,9 +116,13 @@ class run_OLS_Shortest_Path:
         # print("Average OLS Cost = ", np.mean(cost_pred_arr))
         return cost_pred_arr
     
-    def run(self,DataPath_seed,arcs,x_train, c_train, grid,loader_test):
+    def run(self,DataPath_seed,arcs,x_train, c_train, grid,loader_test,loader_train):
         ols_method_obj = ols_method()
         W_ols, w0_ols, t_ols, obj_ols = ols_method_obj.ols_solver("",x_train, c_train)
+        # print("w0_ols = ",np.round(w0_ols,4))
+        # print("OLS objective value = ",obj_ols)
+        # cost_OLS_train = self.obtain_OLS_Cost(arcs,w0_ols,W_ols, grid,loader_train)
+        # print("OLS traing Shortest Objective value = ",np.mean(cost_OLS_train))
         cost_OLS = self.obtain_OLS_Cost(arcs,w0_ols,W_ols, grid,loader_test)
         rst = {"w0":w0_ols,"W":W_ols,"cost":cost_OLS}
         with open(DataPath_seed +'rst_OLS.pkl', "wb") as tf:

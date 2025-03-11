@@ -27,20 +27,22 @@ class DDR_method:
 
         W_ddr = m.addVars( W_ind, lb=-GRB.INFINITY,name = "W" )
         w0_ddr = m.addVars( w0_ind, lb=-GRB.INFINITY,name = "W0" )
-        alpha = m.addVars(N,num_nodes,name="alpha")
+        alpha = m.addVars(N,num_nodes,lb=-GRB.INFINITY,name="alpha")
         expr_obj = 0
         err = []
         for n in range(N):
             cost_true_tem = c_train[n]
             expr_obj = expr_obj + alpha[n,num_nodes-1] - alpha[n,0]
             for ind in range(len(arcs)):
+                cost_pred_tem = quicksum([W_ddr[ind,j] * x_train[n,j] for j in range(p)]) + w0_ddr[ind]
+                err.append(cost_true_tem[ind] - cost_pred_tem)
+
                 e = arcs[ind]
                 j = e[1]
                 i = e[0]
-                cost_pred_tem = quicksum([W_ddr[ind,j] * x_train[n,j] for j in range(p)]) + w0_ddr[ind]
                 # print("j = ",j,", i = ",i, ", e = ",e)
                 m.addConstr(alpha[n,j] - alpha[n,i] >= -mu_fixed*cost_true_tem[ind] - (1-mu_fixed)*cost_pred_tem)
-                err.append(cost_true_tem[ind] - cost_pred_tem)
+                
         m.setObjective(quicksum([err[k] * err[k] for k in range(len(err))])/N + lamb*(expr_obj)/N, GRB.MINIMIZE)
         m.optimize()
         W_DDR_rst = m.getAttr('x', W_ddr)
@@ -49,7 +51,9 @@ class DDR_method:
         for i in range(d):
             W_ddr_val.append([W_DDR_rst[(i,j)] for j in range(p)])
         w0_ddr_val = [w0_DDR_rst[i] for i in range(d)]
-        # print("w0_DDR_rst = ",w0_ddr_val)
+        # print("w0_DDR = ",np.round(w0_ddr_val,4))
+        # print("DDR Obj val = ", m.objVal)
+
         return w0_ddr_val,W_ddr_val 
     
 class run_DDR_Shortest_Path:
@@ -68,6 +72,7 @@ class run_DDR_Shortest_Path:
             # print("Feature Shape = ",np.shape(feature)[0])
             for j in range(np.shape(feature)[0]):
                 cost = W_ @ feature[j,:] + w0
+                # print("The ", j, "-th predict cost = ", np.round(cost,4))
                 sol_pred = full_shortest_model.solve_Shortest_Path(arcs,cost,grid)
                 cost_pred = np.dot(sol_pred, c[j].to("cpu").detach().numpy())
                 cost_pred_arr.append(cost_pred)
@@ -93,6 +98,8 @@ class run_DDR_Shortest_Path:
                 rst["W"] = W_ddr_val
                 rst["cost"] = cost_DDR_arr
                 rst_all[lamb,mu] = rst
+                print("lambda = ",lamb,", mu = ",mu, ", Average DDR cost = ",np.nanmean(cost_DDR_arr))
+                print()
         with open(DataPath_seed +'rst_DDR.pkl', "wb") as tf:
             pickle.dump(rst_all,tf)
 

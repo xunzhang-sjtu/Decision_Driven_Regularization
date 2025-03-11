@@ -142,7 +142,8 @@ class run_SPO_Shortest_Path:
         # train mode
         reg.train()
 
-        cost_pred_arr = self.evaluation_SPO(reg, loader_test,arcs,grid)
+        # cost_pred_arr = self.evaluation_SPO(reg, loader_test,arcs,grid)
+        cost_pred_arr = 1000000000
         # print("epoch 0: Average SPO Cost = ", np.mean(cost_pred_arr))
         # init elpased time
         elapsed = 0

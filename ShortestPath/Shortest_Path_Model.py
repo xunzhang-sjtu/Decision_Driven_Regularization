@@ -65,6 +65,6 @@ class My_ShortestPathModel:
         m.optimize()
         sol = m.getAttr('x')
         # print("sol = ",sol)
-        # shortest_path = self.obtain_path(arcs_arr,sol)
+        shortest_path = self.obtain_path(arcs,sol)
         # print("shortest_path = ",shortest_path)
         return sol
