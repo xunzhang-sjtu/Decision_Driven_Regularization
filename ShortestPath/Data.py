@@ -125,7 +125,19 @@ class data_generation:
         return x_test, z_test_ori, z_test, x_train, z_train_ori, z_train, W_star
 
 
-    def generate_Shortest_Path_Data(self,num_data, num_features, grid, deg=1, noise_width=0, seed=135):
+    def generate_SPO_Data_True_Coef(self,coef_seed,grid,num_data,num_features):
+        rnd = np.random.RandomState(coef_seed)
+        # numbrnda points
+        n = num_data
+        # dimension of features
+        p = num_features
+        # dimension of the cost vector
+        d = (grid[0] - 1) * grid[1] + (grid[1] - 1) * grid[0]
+        # random matrix parameter B
+        B = rnd.binomial(1, 0.5, (d, p))
+        return B
+
+    def generate_Shortest_Path_Data(self,num_data, num_features, grid, deg=1, noise_width=0, seed=135,coef_seed=1):
         """
         A function to generate synthetic data and features for shortest path
 
@@ -154,7 +166,9 @@ class data_generation:
         # dimension of the cost vector
         d = (grid[0] - 1) * grid[1] + (grid[1] - 1) * grid[0]
         # random matrix parameter B
-        B = rnd.binomial(1, 0.5, (d, p))
+        # B = rnd.binomial(1, 0.5, (d, p))
+        B = self.generate_SPO_Data_True_Coef(coef_seed,grid,num_data,num_features)
+        print("B = ",B[:,1])
         # cost vectors
         c = np.zeros((n, d))
         x = np.zeros((n,p))
