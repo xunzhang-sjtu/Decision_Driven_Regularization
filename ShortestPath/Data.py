@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stats import bernoulli
 import pickle
+import os
 
 class data_generation:
     def __init__(self):
@@ -50,92 +51,102 @@ class data_generation:
                         x_var = 0.25, bump = 0):
         # upper and lower are not used
         # mis is the beta in the paper
-        np.random.seed(seed)
-        if version == 1: ## X ~ U[x_low,x_up]; epsilon ~ N(0,alpha)
-            if x_dist == 'normal':
-    #             x_test= np.random.uniform(x_low, x_up, size = (samples_test,p))
-    #             x_train = np.random.uniform(x_low, x_up, size = (samples_train,p))
-                x_test= np.random.multivariate_normal(x_mean*np.ones(p), x_var*np.identity(p), size = num_test) ## KK
-                x_train = np.random.multivariate_normal(x_mean*np.ones(p), x_var*np.identity(p), size = num_train) ## KK
+
+        if os.path.exists(file_path+'Data.pkl'):
+            with open(file_path+'Data.pkl', "rb") as tf:
+                Data = pickle.load(tf)
+            x_test = Data["x_test"]
+            c_test = Data["c_test"]
+            x_train = Data["x_train"]
+            c_train = Data["c_train"]
+            W_star = Data["c_train"]
+        else:
+            np.random.seed(seed)
+            if version == "DDR_Data_Generation": ## X ~ U[x_low,x_up]; epsilon ~ N(0,alpha)
+                if x_dist == 'normal':
+        #             x_test= np.random.uniform(x_low, x_up, size = (samples_test,p))
+        #             x_train = np.random.uniform(x_low, x_up, size = (samples_train,p))
+                    x_test= np.random.multivariate_normal(x_mean*np.ones(p), x_var*np.identity(p), size = num_test) ## KK
+                    x_train = np.random.multivariate_normal(x_mean*np.ones(p), x_var*np.identity(p), size = num_train) ## KK
+                    
+                elif x_dist == 'uniform':
+                    x_test= np.random.uniform(x_low, x_up, size = (num_test,p))
+                    x_train = np.random.uniform(x_low, x_up, size = (num_train,p))
                 
-            elif x_dist == 'uniform':
-                x_test= np.random.uniform(x_low, x_up, size = (num_test,p))
-                x_train = np.random.uniform(x_low, x_up, size = (num_train,p))
-            
-            z_test_ori = np.power(np.dot(x_test, W_star.T) + bump * np.ones((num_test, d)), mis)
-            z_train_ori = np.power(np.dot(x_train, W_star.T) + bump * np.ones((num_train, d)), mis)
-            
-            if e_dist == 'normal':
-                noise_test = np.random.multivariate_normal(np.zeros(d), alpha*np.identity(d), size = num_test)
-                noise_train = np.random.multivariate_normal(np.zeros(d), alpha*np.identity(d), size = num_train)
-            elif e_dist == 'uniform':
-                noise_test = np.random.uniform(-alpha,alpha, size = (num_test, d))
-    #             noise_train = np.random.uniform(x_low, x_up, size = (samples_train, p))  #### why x_low and x_up
-                noise_train = np.random.uniform(-alpha, alpha, size = (num_train, d))  ## KK
+                z_test_ori = np.power(np.dot(x_test, W_star.T) + bump * np.ones((num_test, d)), mis)
+                z_train_ori = np.power(np.dot(x_train, W_star.T) + bump * np.ones((num_train, d)), mis)
+                
+                if e_dist == 'normal':
+                    noise_test = np.random.multivariate_normal(np.zeros(d), alpha*np.identity(d), size = num_test)
+                    noise_train = np.random.multivariate_normal(np.zeros(d), alpha*np.identity(d), size = num_train)
+                elif e_dist == 'uniform':
+                    noise_test = np.random.uniform(-alpha,alpha, size = (num_test, d))
+        #             noise_train = np.random.uniform(x_low, x_up, size = (samples_train, p))  #### why x_low and x_up
+                    noise_train = np.random.uniform(-alpha, alpha, size = (num_train, d))  ## KK
 
-            z_test = z_test_ori + noise_test
-            z_train = z_train_ori + noise_train
-        
-        elif version == 2: # n_epsilon
-            if x_dist == 'normal':
-                x_test= np.random.multivariate_normal(x_mean*np.zeros(p), x_var*np.identity(p), size = num_test)
-                x_train = np.random.multivariate_normal(x_mean*np.zeros(p), x_var*np.identity(p), size = num_train)
-            elif x_dist == 'uniform':
-                x_test= np.random.uniform(x_low, x_up, size = (num_test,p))
-                x_train = np.random.uniform(x_low, x_up, size = (num_train,p))
+                c_test = z_test_ori + noise_test
+                c_train = z_train_ori + noise_train
             
-            z_test_ori = np.power(np.dot(x_test, W_star.T) + bump * np.ones((num_test, d)), mis)
-            z_train_ori = np.power(np.dot(x_train, W_star.T) + bump * np.ones((num_train, d)), mis)
-            
-            if e_dist == 'normal':
-                # z_test = [z_test_ori + np.random.multivariate_normal(np.zeros(d), alpha*np.identity(d), size = samples_test) for n in range(n_epsilon)]
-                z_test = z_test_ori + np.random.multivariate_normal(np.zeros(d), alpha*np.identity(d), size = num_test)
+            elif version == 2: # n_epsilon
+                if x_dist == 'normal':
+                    x_test= np.random.multivariate_normal(x_mean*np.zeros(p), x_var*np.identity(p), size = num_test)
+                    x_train = np.random.multivariate_normal(x_mean*np.zeros(p), x_var*np.identity(p), size = num_train)
+                elif x_dist == 'uniform':
+                    x_test= np.random.uniform(x_low, x_up, size = (num_test,p))
+                    x_train = np.random.uniform(x_low, x_up, size = (num_train,p))
+                
+                z_test_ori = np.power(np.dot(x_test, W_star.T) + bump * np.ones((num_test, d)), mis)
+                z_train_ori = np.power(np.dot(x_train, W_star.T) + bump * np.ones((num_train, d)), mis)
+                
+                if e_dist == 'normal':
+                    # z_test = [z_test_ori + np.random.multivariate_normal(np.zeros(d), alpha*np.identity(d), size = samples_test) for n in range(n_epsilon)]
+                    z_test = z_test_ori + np.random.multivariate_normal(np.zeros(d), alpha*np.identity(d), size = num_test)
 
-                noise_train = np.random.multivariate_normal(np.zeros(d), alpha*np.identity(d), size = num_train)
-            elif e_dist == 'uniform':
-                z_test = z_test_ori + np.random.uniform(-alpha, alpha, size = (num_test,d)) 
-                noise_train = np.random.uniform(-alpha, alpha, size = (num_train, d))  ## KK
-            
-            z_train = z_train_ori + noise_train
-            
-        elif version == "SPO_Data_Generation": ## SPO+ version
-            if mis <= 0:
-                raise ValueError("deg = {} should be positive.".format(mis))
-            # set seed
-            # rnd = np.random.RandomState(seed)
-            n = num_train+num_test
-            c = np.zeros((n, d))
-            x = np.zeros((n,p))
-            for i in range(n):
-                c_tem = np.ones(p) * -1
-                while np.min(c_tem)< 0:
-                    # feature vector
-                    # xi = rnd.normal(0,1,p)
-                    xi = np.random.normal(0,1,p)
-                    # cost without noise
-                    c_tem = (np.dot(W_star, xi.reshape(p, 1)).T / np.sqrt(p) + 3) 
-                ci = c_tem ** mis + 1
-                # rescale
-                ci /= 3.5 ** mis
-                # noise
-                epislon = np.random.uniform(1 - alpha, 1 + alpha, d)
-                ci *= epislon
+                    noise_train = np.random.multivariate_normal(np.zeros(d), alpha*np.identity(d), size = num_train)
+                elif e_dist == 'uniform':
+                    z_test = z_test_ori + np.random.uniform(-alpha, alpha, size = (num_test,d)) 
+                    noise_train = np.random.uniform(-alpha, alpha, size = (num_train, d))  ## KK
+                
+                z_train = z_train_ori + noise_train
+                
+            elif version == "SPO_Data_Generation": ## SPO+ version
+                if mis <= 0:
+                    raise ValueError("deg = {} should be positive.".format(mis))
+                # set seed
+                # rnd = np.random.RandomState(seed)
+                n = num_train+num_test
+                c = np.zeros((n, d))
+                x = np.zeros((n,p))
+                for i in range(n):
+                    c_tem = np.ones(p) * -1
+                    while np.min(c_tem)< 0:
+                        # feature vector
+                        # xi = rnd.normal(0,1,p)
+                        xi = np.random.normal(0,1,p)
+                        # cost without noise
+                        c_tem = (np.dot(W_star, xi.reshape(p, 1)).T / np.sqrt(p) + 3) 
+                    ci = c_tem ** mis + 1
+                    # rescale
+                    ci /= 3.5 ** mis
+                    # noise
+                    epislon = np.random.uniform(1 - alpha, 1 + alpha, d)
+                    ci *= epislon
 
-                x[i,:] = xi
-                c[i, :] = ci
+                    x[i,:] = xi
+                    c[i, :] = ci
 
-        from sklearn.model_selection import train_test_split
-        x_train, x_test, c_train, c_test = train_test_split(x, c, test_size=num_test, random_state=42)
+                from sklearn.model_selection import train_test_split
+                x_train, x_test, c_train, c_test = train_test_split(x, c, test_size=num_test, random_state=42)
 
 
-        dict = {}
-        dict["x_test"] = x_test
-        dict["c_test"] = c_test
-        dict["x_train"] = x_train
-        dict["c_train"] = c_train
-        dict["W_star"] = W_star
-        with open(file_path+'Data.pkl', "wb") as tf:
-            pickle.dump(dict,tf)
+            dict = {}
+            dict["x_test"] = x_test
+            dict["c_test"] = c_test
+            dict["x_train"] = x_train
+            dict["c_train"] = c_train
+            dict["W_star"] = W_star
+            with open(file_path+'Data.pkl', "wb") as tf:
+                pickle.dump(dict,tf)
 
         # print("W_star = ",W_star[0,:])
         # print("x_train = ",x_train[0,:])
