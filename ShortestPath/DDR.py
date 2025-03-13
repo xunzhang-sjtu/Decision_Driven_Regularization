@@ -59,47 +59,32 @@ class DDR_method:
 class run_DDR_Shortest_Path:
     def __init__(self):
         pass
-    # from pyepo import EPO
-    def obtain_DDR_Cost(self,arcs,w0,W_, grid,dataloader):
-        full_shortest_model = My_ShortestPathModel()
 
-        # evaluate
-        cost_pred_arr = []
-        # load data
-        for data in dataloader:
-            x, c, w, z = data
-            feature = x.numpy()
-            # print("Feature Shape = ",np.shape(feature)[0])
-            for j in range(np.shape(feature)[0]):
-                cost = W_ @ feature[j,:] + w0
-                # print("The ", j, "-th predict cost = ", np.round(cost,4))
-                sol_pred = full_shortest_model.solve_Shortest_Path(arcs,cost,grid)
-                cost_pred = np.dot(sol_pred, c[j].to("cpu").detach().numpy())
-                cost_pred_arr.append(cost_pred)
-        # print("Average OLS Cost = ", np.mean(cost_pred_arr))
-        return cost_pred_arr
-    
-    def run(self,DataPath_seed,lamb_arr,mu_arr,arcs,x_train, c_train, grid,loader_test,num_nodes=25):
+    def run(self,DataPath_seed,lamb_arr,mu_arr,arcs,grid,num_nodes=25):
+        with open(DataPath_seed+'Data.pkl', "rb") as tf:
+            Data = pickle.load(tf)
+        x_test = Data["x_test"]
+        c_test = Data["c_test"]
+        x_train = Data["x_train"]
+        c_train = Data["c_train"]
+
         ddr_obj = DDR_method()
-        # w0_ddr_val,W_ddr_val = ddr_obj.solve_DDR(arcs,lamb,mu,num_nodes,x_train,c_train)
-        # cost_DDR_arr = self.obtain_DDR_Cost(arcs,w0_ddr_val,W_ddr_val, grid,loader_test)
+        from Peformance import performance_evaluation
+        perfs = performance_evaluation()
 
         rst_all = {}
         for lamb in lamb_arr:
             # print("======== lambda = ",lamb,"============")
             for mu in mu_arr:
                 rst = {}
-                # num_nodes = 25
-                # w0_ddr_val,W_ddr_val = solve_DDR(lamb,mu,num_nodes,x_train,c_train)
-                # cost_DDR = DDR_runner.run(arcs,x_train, c_train, grid,loader_test,lamb,mu,num_nodes)
                 w0_ddr_val,W_ddr_val = ddr_obj.solve_DDR(arcs,lamb,mu,num_nodes,x_train,c_train)
-                cost_DDR_arr = self.obtain_DDR_Cost(arcs,w0_ddr_val,W_ddr_val, grid,loader_test)
+                cost_DDR_arr = perfs.compute_Cost_with_Prediction(arcs,w0_ddr_val,W_ddr_val, grid,c_test,x_test)
+
                 rst["w0"] = w0_ddr_val
                 rst["W"] = W_ddr_val
                 rst["cost"] = cost_DDR_arr
                 rst_all[lamb,mu] = rst
                 print("lambda = ",lamb,", mu = ",mu, ", Average DDR cost = ",np.nanmean(cost_DDR_arr))
-                print()
         with open(DataPath_seed +'rst_DDR.pkl', "wb") as tf:
             pickle.dump(rst_all,tf)
 

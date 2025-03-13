@@ -97,33 +97,25 @@ class ols_method:
 class run_OLS_Shortest_Path:
     def __init__(self):
         pass
-    # from pyepo import EPO
-    def obtain_OLS_Cost(self,arcs,w0_ols,W_ols, grid,dataloader):
-        full_shortest_model = My_ShortestPathModel()
-
-        # evaluate
-        cost_pred_arr = []
-        # load data
-        for data in dataloader:
-            x, c, w, z = data
-            feature = x.numpy()
-            # print("Feature Shape = ",np.shape(feature)[0])
-            for j in range(np.shape(feature)[0]):
-                cost = W_ols @ feature[j,:] + w0_ols
-                sol_pred = full_shortest_model.solve_Shortest_Path(arcs,cost,grid)
-                cost_pred = np.dot(sol_pred, c[j].to("cpu").detach().numpy())
-                cost_pred_arr.append(cost_pred)
-        # print("Average OLS Cost = ", np.mean(cost_pred_arr))
-        return cost_pred_arr
     
-    def run(self,DataPath_seed,arcs,x_train, c_train, grid,loader_test,loader_train):
+    def run(self,DataPath_seed,arcs,grid):
+        with open(DataPath_seed+'Data.pkl', "rb") as tf:
+            Data = pickle.load(tf)
+        x_test = Data["x_test"]
+        c_test = Data["c_test"]
+        x_train = Data["x_train"]
+        c_train = Data["c_train"]
+    
         ols_method_obj = ols_method()
         W_ols, w0_ols, t_ols, obj_ols = ols_method_obj.ols_solver("",x_train, c_train)
         # print("w0_ols = ",np.round(w0_ols,4))
         # print("OLS objective value = ",obj_ols)
-        # cost_OLS_train = self.obtain_OLS_Cost(arcs,w0_ols,W_ols, grid,loader_train)
-        # print("OLS traing Shortest Objective value = ",np.mean(cost_OLS_train))
-        cost_OLS = self.obtain_OLS_Cost(arcs,w0_ols,W_ols, grid,loader_test)
+
+
+        from Peformance import performance_evaluation
+        perfs = performance_evaluation()
+        cost_OLS = perfs.compute_Cost_with_Prediction(arcs,w0_ols,W_ols, grid,c_test,x_test)
+
         rst = {"w0":w0_ols,"W":W_ols,"cost":cost_OLS}
         with open(DataPath_seed +'rst_OLS.pkl', "wb") as tf:
             pickle.dump(rst,tf)
