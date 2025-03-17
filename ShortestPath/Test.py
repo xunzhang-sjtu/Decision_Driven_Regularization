@@ -52,7 +52,7 @@ def Prepare_Data(DataPath,lower, upper, p, d, coef_seed,seed_all,num_test, num_t
         print()
 
 coef_seed = 2
-seed_all = np.arange(1,3)
+seed_all = np.arange(1,2)
 Prepare_Data(DataPath,lower, upper, p, d, coef_seed,seed_all,num_test, num_train, alpha,mis,data_generation_process)
 
 
@@ -61,25 +61,53 @@ SPM = shortestPathModel()
 arcs = SPM._getArcs()
 
 
-cost_Oracle_all = {}
+# cost_Oracle_all = {}
+# for seed in seed_all:
+#     DataPath_seed = DataPath +"Seed="+str(seed)+"/"
+#     pathlib.Path(DataPath_seed).mkdir(parents=True, exist_ok=True)
+#     with open(DataPath_seed+'Data.pkl', "rb") as tf:
+#         Data = pickle.load(tf)
+#     c_test = Data["c_test"]
+#     from Peformance import performance_evaluation
+#     perfs = performance_evaluation()
+#     cost_Oracle_all[seed] = perfs.compute_Oracel_Cost(arcs, grid,c_test)
+#     print("*** seed = ",seed," Average Oracle Cost = ",np.mean(cost_Oracle_all[seed]))
+
+
+
+# cost_OLS_all = {}
+# from OLS import run_OLS_Shortest_Path
+# OLS_runner = run_OLS_Shortest_Path()
+# for seed in seed_all:
+#     DataPath_seed = DataPath +"Seed="+str(seed)+"/"
+#     pathlib.Path(DataPath_seed).mkdir(parents=True, exist_ok=True)
+#     cost_OLS_all[seed] = OLS_runner.run(DataPath_seed,arcs,grid)
+#     print("*** seed = ",seed," Average OLS Cost = ",np.mean(cost_OLS_all[seed]))
+
+
+mu_arr = np.arange(0.7,1.0,0.05)
+lamb_arr = np.arange(0.75,1.251,0.125)
+lamb_arr = [1.0]
+from DDR import run_DDR_Shortest_Path
+DDR_runner = run_DDR_Shortest_Path()
+# mu_arr = np.arange(0.025,1.0,0.05)
+# lamb_arr = np.arange(0.75,1.251,0.125)
+cost_DDR_all = {}
 for seed in seed_all:
     DataPath_seed = DataPath +"Seed="+str(seed)+"/"
     pathlib.Path(DataPath_seed).mkdir(parents=True, exist_ok=True)
-    with open(DataPath_seed+'Data.pkl', "rb") as tf:
-        Data = pickle.load(tf)
-    c_test = Data["c_test"]
-    from Peformance import performance_evaluation
-    perfs = performance_evaluation()
-    cost_Oracle_all[seed] = perfs.compute_Oracel_Cost(arcs, grid,c_test)
-    print("*** seed = ",seed," Average Oracle Cost = ",np.mean(cost_Oracle_all[seed]))
+    print("*** seed = ",seed,": Run DDR ========")
+    cost_DDR_all[seed] = DDR_runner.run(DataPath_seed,lamb_arr,mu_arr,arcs, grid,num_nodes=25)
 
-from PYEPO import PyEPO_Method
-epo_runner = PyEPO_Method()
 
-method_names = ["spo+","pg"]
-for seed in seed_all:
-    DataPath_seed = DataPath +"Seed="+str(seed)+"/"
-    pathlib.Path(DataPath_seed).mkdir(parents=True, exist_ok=True)
-    batch_size = 20
-    num_epochs = 30
-    epo_runner.run(method_names,DataPath_seed,batch_size,num_feat,grid,num_epochs)
+
+# from PYEPO import PyEPO_Method
+# epo_runner = PyEPO_Method()
+
+# method_names = ["spo+","pg"]
+# for seed in seed_all:
+#     DataPath_seed = DataPath +"Seed="+str(seed)+"/"
+#     pathlib.Path(DataPath_seed).mkdir(parents=True, exist_ok=True)
+#     batch_size = 20
+#     num_epochs = 30
+#     epo_runner.run(method_names,DataPath_seed,batch_size,num_feat,grid,num_epochs)
