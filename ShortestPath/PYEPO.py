@@ -140,17 +140,17 @@ class PyEPO_Method:
         return cost_arr
 
 
-    def run(self,method_names,DataPath_seed,batch_size,num_feat,grid,num_epochs):
-        with open(DataPath_seed+'Data.pkl', "rb") as tf:
-            Data = pickle.load(tf)
-        x_test = Data["x_test"]
-        c_test = Data["c_test"]
-        x_train = Data["x_train"]
-        c_train = Data["c_train"]
+    def run(self,method_names,DataPath_seed,batch_size,num_feat,grid,num_epochs,x_train,c_train,x_test,c_test,arcs):
+        # with open(DataPath_seed+'Data.pkl', "rb") as tf:
+        #     Data = pickle.load(tf)
+        # x_test = Data["x_test"]
+        # c_test = Data["c_test"]
+        # x_train = Data["x_train"]
+        # c_train = Data["c_train"]
 
         # 在这里实例化 shortestpathModel
         optmodel = shortestPathModel()
-        arcs = optmodel.arcs
+        # arcs = optmodel.arcs
 
         # get optDataset
         dataset_train = pyepo.data.dataset.optDataset(optmodel, x_train, c_train)
