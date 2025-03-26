@@ -38,7 +38,11 @@ class data_generation:
             W_star = np.multiply(W_U, W_B)
         elif version == 5: ## 0(0.5),1(0.25),2(0.25)
             W_star = np.random.choice([0,1,2], (d,p), p =[0.5,0.25,0.25])
-
+        if version == 6:
+            W_star = np.random.uniform(lower,upper,(d,p))
+            W_star_same = np.random.uniform(lower,upper,p)
+            for d_index in range(d):
+                W_star[d_index,:] = W_star_same + np.random.uniform(lower,upper,p) * 0.1
         # dict = {}
         # dict["W_star"] = W_star
         # with open(file_path+'W_star.pkl', "wb") as tf:
