@@ -64,8 +64,8 @@ class data_generation:
             np.random.seed(seed)
             if version == "DDR_Data_Generation": ## X ~ U[x_low,x_up]; epsilon ~ N(0,alpha)
                 if x_dist == 'normal':
-        #             x_test= np.random.uniform(x_low, x_up, size = (samples_test,p))
-        #             x_train = np.random.uniform(x_low, x_up, size = (samples_train,p))
+                    # x_test= np.random.uniform(x_low, x_up, size = (samples_test,p))
+                    # x_train = np.random.uniform(x_low, x_up, size = (samples_train,p))
                     x_test= np.random.multivariate_normal(x_mean*np.ones(p), x_var*np.identity(p), size = num_test) ## KK
                     x_train = np.random.multivariate_normal(x_mean*np.ones(p), x_var*np.identity(p), size = num_train) ## KK
                     
