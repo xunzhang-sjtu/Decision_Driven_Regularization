@@ -106,8 +106,14 @@ class PyEPO_Method:
         # loss_log_regret = [pyepo.metric.regret(reg, optmodel, loader_test)]
 
         # init elpased time
-        elapsed = 0
-        for epoch in range(num_epochs):
+        elapsed = 0 
+        epoch = 0
+        # for epoch in range(num_epochs):
+
+        prev_cost_mean = 1e8  # 记录前一次的cost均值
+        prev_diff = float('inf')  # 记录前一次的cost差值
+
+        while True:
             # start timing
             tick = time.time()
             # load data
@@ -136,7 +142,16 @@ class PyEPO_Method:
                 # log
                 # loss_log.append(loss.item())
             cost_arr = perfs.compute_EPO_Cost(reg, loader_test,arcs,grid)
-            # print("epoch = ",epoch,"cost = ",np.mean(cost_arr))
+
+            print("epoch = ",epoch,"cost = ",np.mean(cost_arr),",prev_cost_mean = ",prev_cost_mean)
+            # 终止条件计算
+            diff = abs(np.nanmean(cost_arr) - prev_cost_mean)
+            if prev_diff > 0 and diff < 0.0001:
+                break  # 终止循环
+            else:
+                prev_cost_mean = np.nanmean(cost_arr)
+
+            epoch = epoch + 1
         return cost_arr
 
 
@@ -164,20 +179,20 @@ class PyEPO_Method:
         rst_EPO = {}
         for method_name in method_names:
             if method_name == "spo+":
-                print("=========== Run SPO =============")
+                print("=========== Run SPO,",DataPath_seed)
             # Obtain SPO cost
                 spop = pyepo.func.SPOPlus(optmodel, processes=2)
                 cost_SPO = self.Implement_PyEPO(arcs,grid,num_feat, spop, method_name, loader_train,loader_test,num_epochs, 1e-3)
                 rst_EPO["SPO"] = cost_SPO
 
             if method_name == "pg":
-                print("=========== Run PG =============")
+                print("=========== Run PG,",DataPath_seed)
                 pg = pyepo.func.perturbationGradient(optmodel, sigma=0.1, two_sides=False, processes=2)
                 cost_PG = self.Implement_PyEPO(arcs,grid,num_feat, pg, method_name, loader_train,loader_test,num_epochs, 1e-3)
                 rst_EPO["PG"] = cost_PG
 
             if method_name == "ltr":
-                print("=========== Run LTR =============")
+                print("=========== Run LTR,",DataPath_seed)
                 ptltr = pyepo.func.pointwiseLTR(optmodel, processes=2, solve_ratio=0.05, dataset=dataset_train)
                 cost_LTR = self.Implement_PyEPO(arcs,grid,num_feat, ptltr, method_name, loader_train,loader_test,num_epochs, 1e-3)
                 rst_EPO["LTR"] = cost_LTR

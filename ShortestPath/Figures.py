@@ -111,4 +111,5 @@ def figure_plot_upleft(all_x, all_y, figure_name, size = (5, 5), move = [-0.12, 
     ####### Bring the marginals closer to the scatter plot and save eps file
     fig.tight_layout(pad = 1)
     # plt.savefig(figure_name + '.eps', format='eps')
-    # plt.savefig(figure_name + '.pdf', format='pdf')
+    print(figure_name + '.pdf')
+    plt.savefig(figure_name + '.pdf', format='pdf')

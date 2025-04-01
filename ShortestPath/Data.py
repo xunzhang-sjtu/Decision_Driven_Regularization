@@ -50,9 +50,9 @@ class data_generation:
         return W_star
         
 
-    def generate_samples(self,seed,file_path,p,d,num_test, num_train, alpha, W_star, mis = 1, thres = 10, 
-                        version = 1, x_dist = 'normal', e_dist = 'normal', x_low = 0, x_up = 2, x_mean = 2, 
-                        x_var = 0.25, bump = 0):
+    def generate_samples(self,iter,file_path,p,d,num_test, num_train, alpha, W_star, mis, thres, 
+                        version, x_dist, e_dist, x_low, x_up, x_mean, 
+                        x_var, bump):
         # upper and lower are not used
         # mis is the beta in the paper
 
@@ -63,9 +63,9 @@ class data_generation:
             c_test = Data["c_test"]
             x_train = Data["x_train"]
             c_train = Data["c_train"]
-            W_star = Data["c_train"]
+            W_star = Data["W_star"]
         else:
-            np.random.seed(seed)
+            # np.random.seed(iter)
             if version == "DDR_Data_Generation": ## X ~ U[x_low,x_up]; epsilon ~ N(0,alpha)
                 if x_dist == 'normal':
                     # x_test= np.random.uniform(x_low, x_up, size = (samples_test,p))
