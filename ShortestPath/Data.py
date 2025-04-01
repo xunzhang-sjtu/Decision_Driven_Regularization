@@ -18,9 +18,9 @@ class data_generation:
         # version 3: W* = (W sparse, 0)
         # np.random.seed(seed)
         np.random.seed(seed)
-        if version == 0:
+        if version == "DDR_Data_Generation":
             W_star = np.random.uniform(lower,upper,(d,p))
-        elif version == 1:
+        elif version == "SPO_Data_Generation":
             prob = 0.5
             X = bernoulli(prob)
             W_star = X.rvs((d,p))
@@ -130,8 +130,8 @@ class data_generation:
                         # cost without noise
                         c_tem = (np.dot(W_star, xi.reshape(p, 1)).T / np.sqrt(p) + 3) 
                     ci = c_tem ** mis + 1
-                    # rescale
-                    ci /= 3.5 ** mis
+                    # # rescale
+                    # ci /= 3.5 ** mis
                     # noise
                     epislon = np.random.uniform(1 - alpha, 1 + alpha, d)
                     ci *= epislon
