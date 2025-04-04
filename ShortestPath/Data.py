@@ -55,7 +55,6 @@ class data_generation:
                         x_var, bump):
         # upper and lower are not used
         # mis is the beta in the paper
-
         if os.path.exists(file_path+'Data.pkl'):
             with open(file_path+'Data.pkl', "rb") as tf:
                 Data = pickle.load(tf)
