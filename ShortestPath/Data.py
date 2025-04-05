@@ -53,8 +53,6 @@ class data_generation:
     def generate_samples(self,iter,file_path,p,d,num_test, num_train, alpha, W_star, mis, thres, 
                         version, x_dist, e_dist, x_low, x_up, x_mean, 
                         x_var, bump):
-        # upper and lower are not used
-        # mis is the beta in the paper
         if os.path.exists(file_path+'Data.pkl'):
             with open(file_path+'Data.pkl', "rb") as tf:
                 Data = pickle.load(tf)
@@ -63,6 +61,8 @@ class data_generation:
             x_train = Data["x_train"]
             c_train = Data["c_train"]
             W_star = Data["W_star"]
+            noise_train = Data["noise_train"]
+            noise_test = Data["noise_test"]
         else:
             # np.random.seed(iter)
             if version == "DDR_Data_Generation": ## X ~ U[x_low,x_up]; epsilon ~ N(0,alpha)
@@ -136,7 +136,7 @@ class data_generation:
                     ci *= epislon
 
                     x[i,:] = xi
-                    c[i, :] = ci
+                    c[i,:] = ci
 
                 from sklearn.model_selection import train_test_split
                 x_train, x_test, c_train, c_test = train_test_split(x, c, test_size=num_test, random_state=42)
@@ -147,6 +147,8 @@ class data_generation:
             dict["c_test"] = c_test
             dict["x_train"] = x_train
             dict["c_train"] = c_train
+            dict["noise_train"] = noise_train
+            dict["noise_test"] = noise_test
             dict["W_star"] = W_star
             with open(file_path+'Data.pkl', "wb") as tf:
                 pickle.dump(dict,tf)
@@ -154,7 +156,7 @@ class data_generation:
         # print("W_star = ",W_star[0,:])
         # print("x_train = ",x_train[0,:])
         # print("z_train = ",z_train[0,:])
-        return x_test, c_test, x_train, c_train, W_star
+        return x_test, c_test, x_train, c_train, noise_train,noise_test,W_star
 
 
     def generate_SPO_Data_True_Coef(self,coef_seed,grid,num_data,num_features):

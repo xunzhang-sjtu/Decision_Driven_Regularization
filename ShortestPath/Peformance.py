@@ -21,18 +21,20 @@ class performance_evaluation:
         # print("Average OLS Cost = ", np.mean(cost_pred_arr))
         return cost_pred_arr
             
-    def compute_Oracel_Cost(self,arcs, grid,c_avg,c_real):
+    def compute_DDR_out_of_sample_Cost(self,arcs, grid,c_pred,c_oracle_avg,noise):
         from Shortest_Path_Model import My_ShortestPathModel
         full_shortest_model = My_ShortestPathModel()
         # evaluate
         cost_pred_arr = []
-        # load data
-        for j in range(np.shape(c_avg)[0]):
-            sol_pred = full_shortest_model.solve_Shortest_Path(arcs,c_avg[j],grid)
-            cost_pred = np.dot(sol_pred, c_real[j])
-            cost_pred_arr.append(cost_pred)
+        for j in range(np.shape(c_pred)[0]):
+            sol_pred = full_shortest_model.solve_Shortest_Path(arcs,c_pred[j],grid)
+            c_oralce_realization = c_oracle_avg[j,:] + noise
+            cost_real = np.nanmean(c_oralce_realization @ sol_pred)
+            cost_pred_arr.append(cost_real)
+
         return cost_pred_arr
     
+
 
 
     # from pyepo import EPO
