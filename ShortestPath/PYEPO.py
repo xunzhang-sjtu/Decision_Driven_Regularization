@@ -3,12 +3,15 @@ from pyepo.model.grb import optGrbModel
 import numpy as np
 import pickle
 import pyepo
-
+from torch import nn
+import torch
+torch.manual_seed(42)
+torch.cuda.manual_seed(42)
 
 class shortestPathModel(optGrbModel):
 
-    def __init__(self):
-        self.grid = (5,5)
+    def __init__(self,grid):
+        self.grid = grid
         self.arcs = self._getArcs()
         super().__init__()
 
@@ -72,7 +75,7 @@ class shortestPathModel(optGrbModel):
         return m, x
     
 
-from torch import nn
+
 # build linear model
 class LinearRegression(nn.Module):
 
@@ -89,7 +92,7 @@ class PyEPO_Method:
     def __init__(self):
         pass
     # train model
-    def Implement_PyEPO(self,arcs,grid,num_feat, loss_func, method_name, loader_train,loader_test,num_epochs, lr):
+    def Implement_PyEPO(self,arcs,grid,num_feat, loss_func, method_name, loader_train,num_epochs, lr):
         import time
         import torch
         from Peformance import performance_evaluation
@@ -101,18 +104,11 @@ class PyEPO_Method:
         optimizer = torch.optim.Adam(reg.parameters(), lr=lr)
         # train mode
         reg.train()
-        # # init log
-        loss_log = []
-        # loss_log_regret = [pyepo.metric.regret(reg, optmodel, loader_test)]
 
         # init elpased time
         elapsed = 0 
         epoch = 0
-        # for epoch in range(num_epochs):
-
         prev_cost_mean = 1e8  # 记录前一次的cost均值
-        prev_diff = float('inf')  # 记录前一次的cost差值
-
         while True:
             # start timing
             tick = time.time()
@@ -139,64 +135,52 @@ class PyEPO_Method:
                 # record time
                 tock = time.time()
                 elapsed += tock - tick
-                # log
-                # loss_log.append(loss.item())
-            cost_arr = perfs.compute_EPO_Cost(reg, loader_test,arcs,grid)
+            
+            W_EPO_mat = (reg.linear.weight.data).numpy()
+            w0_EPO = (reg.linear.bias.data).numpy()
 
-            print("epoch = ",epoch,"cost = ",np.mean(cost_arr),",prev_cost_mean = ",prev_cost_mean)
+            cost_arr = perfs.compute_EPO_Cost(reg, loader_train,arcs,grid)
             # 终止条件计算
             diff = abs(np.nanmean(cost_arr) - prev_cost_mean)
-            if prev_diff > 0 and diff < 0.0001:
+            # print("epoch = ",epoch,"in sample cost = ",np.mean(cost_arr),",diff = ",diff)
+            if epoch > num_epochs or diff < 0.00001:
                 break  # 终止循环
             else:
                 prev_cost_mean = np.nanmean(cost_arr)
-
             epoch = epoch + 1
-        return cost_arr
+        return cost_arr,W_EPO_mat,w0_EPO
 
 
-    def run(self,method_names,DataPath_seed,batch_size,num_feat,grid,num_epochs,x_train,c_train,x_test,c_test,arcs):
-        # with open(DataPath_seed+'Data.pkl', "rb") as tf:
-        #     Data = pickle.load(tf)
-        # x_test = Data["x_test"]
-        # c_test = Data["c_test"]
-        # x_train = Data["x_train"]
-        # c_train = Data["c_train"]
-
+    def run(self,method_names,DataPath_seed,batch_size,num_feat,grid,num_epochs,x_train,c_train,arcs):
         # 在这里实例化 shortestpathModel
-        optmodel = shortestPathModel()
+        optmodel = shortestPathModel(grid)
         # arcs = optmodel.arcs
 
         # get optDataset
         dataset_train = pyepo.data.dataset.optDataset(optmodel, x_train, c_train)
-        dataset_test = pyepo.data.dataset.optDataset(optmodel, x_test, c_test)
-
         # set data loader
         from torch.utils.data import DataLoader
         loader_train = DataLoader(dataset_train, batch_size=batch_size, shuffle=False)
-        loader_test = DataLoader(dataset_test, batch_size=batch_size, shuffle=False)
 
         rst_EPO = {}
         for method_name in method_names:
             if method_name == "spo+":
-                print("=========== Run SPO,",DataPath_seed)
+                # print("=========== Run SPO,",DataPath_seed)
             # Obtain SPO cost
                 spop = pyepo.func.SPOPlus(optmodel, processes=2)
-                cost_SPO = self.Implement_PyEPO(arcs,grid,num_feat, spop, method_name, loader_train,loader_test,num_epochs, 1e-3)
+                cost_SPO,W_EPO_mat,w0_EPO = self.Implement_PyEPO(arcs,grid,num_feat, spop, method_name, loader_train,num_epochs, 1e-3)
                 rst_EPO["SPO"] = cost_SPO
 
             if method_name == "pg":
-                print("=========== Run PG,",DataPath_seed)
+                # print("=========== Run PG,",DataPath_seed)
                 pg = pyepo.func.perturbationGradient(optmodel, sigma=0.1, two_sides=False, processes=2)
-                cost_PG = self.Implement_PyEPO(arcs,grid,num_feat, pg, method_name, loader_train,loader_test,num_epochs, 1e-3)
+                cost_PG,W_EPO_mat,w0_EPO = self.Implement_PyEPO(arcs,grid,num_feat, pg, method_name, loader_train,num_epochs, 1e-3)
                 rst_EPO["PG"] = cost_PG
 
             if method_name == "ltr":
-                print("=========== Run LTR,",DataPath_seed)
-                ptltr = pyepo.func.pointwiseLTR(optmodel, processes=2, solve_ratio=0.05, dataset=dataset_train)
-                cost_LTR = self.Implement_PyEPO(arcs,grid,num_feat, ptltr, method_name, loader_train,loader_test,num_epochs, 1e-3)
+                # print("=========== Run LTR,",DataPath_seed)
+                ptltr,W_EPO_mat,w0_EPO = pyepo.func.pointwiseLTR(optmodel, processes=2, solve_ratio=0.05, dataset=dataset_train)
+                cost_LTR = self.Implement_PyEPO(arcs,grid,num_feat, ptltr, method_name, loader_train,num_epochs, 1e-3)
                 rst_EPO["LTR"] = cost_LTR
 
-        with open(DataPath_seed +'rst_EPO.pkl', "wb") as tf:
-            pickle.dump(rst_EPO,tf)
-        return rst_EPO
+        return W_EPO_mat,w0_EPO

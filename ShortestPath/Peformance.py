@@ -34,7 +34,18 @@ class performance_evaluation:
 
         return cost_pred_arr
     
+    def compute_SPO_out_of_sample_Cost(self,arcs, grid,c_pred,c_oracle_avg,noise):
+        from Shortest_Path_Model import My_ShortestPathModel
+        full_shortest_model = My_ShortestPathModel()
+        # evaluate
+        cost_pred_arr = []
+        for j in range(np.shape(c_pred)[0]):
+            sol_pred = full_shortest_model.solve_Shortest_Path(arcs,c_pred[j],grid)
+            c_oralce_realization = c_oracle_avg[j,:] * noise
+            cost_real = np.nanmean(c_oralce_realization @ sol_pred)
+            cost_pred_arr.append(cost_real)
 
+        return cost_pred_arr
 
 
     # from pyepo import EPO

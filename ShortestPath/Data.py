@@ -120,6 +120,7 @@ class data_generation:
                 n = num_train+num_test
                 c = np.zeros((n, d))
                 x = np.zeros((n,p))
+                eps_all = np.zeros((n,d))
                 for i in range(n):
                     c_tem = np.ones(p) * -1
                     while np.min(c_tem)< 0:
@@ -137,11 +138,10 @@ class data_generation:
 
                     x[i,:] = xi
                     c[i,:] = ci
-
+                    eps_all[i,:] = epislon
                 from sklearn.model_selection import train_test_split
                 x_train, x_test, c_train, c_test = train_test_split(x, c, test_size=num_test, random_state=42)
-
-
+                noise_train, noise_test = train_test_split(eps_all, test_size=num_test, random_state=42)
             dict = {}
             dict["x_test"] = x_test
             dict["c_test"] = c_test
