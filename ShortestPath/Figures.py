@@ -56,7 +56,7 @@ def figure_plot_upleft(all_x, all_y, figure_name, size = (5, 5), move = [-0.12, 
         plt.hlines(100, 0, 100, linestyle="dashed", alpha = 0.8,color = 'k') #pio
         ax.annotate(sublabel, xy = (0.55,0.9), xycoords = 'axes fraction', bbox=dict(boxstyle="round", fc="w"), size = 10)
     
-    plt.hlines(np.nanmean(data[1]), 0, 100, linestyle="dashed", alpha = 0.8,color = 'r')
+    # plt.hlines(np.nanmean(data[1]), 0, 100, linestyle="dashed", alpha = 0.8,color = 'r')
 
 
     ####### Create Y-marginal (right)
