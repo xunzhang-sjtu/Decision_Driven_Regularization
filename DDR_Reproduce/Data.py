@@ -15,7 +15,7 @@ class data_generation:
         # version 1: each component is bernoulli with prob == 0.5
         # version 2: W* = (W^0,0)
         # version 3: W* = (W sparse, 0)
-        #     random.seed(seed)
+        # random.seed(seed)
         if version == "DDR_Data_Generation":
             W_star = np.random.uniform(lower,upper,(d,p))
         elif version == 1:
