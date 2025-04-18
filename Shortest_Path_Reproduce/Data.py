@@ -17,7 +17,6 @@ class data_generation:
         # version 2: W* = (W^0,0)
         # version 3: W* = (W sparse, 0)
         # np.random.seed(seed)
-        np.random.seed(seed)
         if version == "DDR_Data_Generation":
             W_star = np.random.uniform(lower,upper,(d,p))
         elif version == "SPO_Data_Generation":
