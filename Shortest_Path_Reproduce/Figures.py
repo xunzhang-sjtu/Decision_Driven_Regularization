@@ -127,8 +127,8 @@ class regret_and_h2h_figure:
         xmin, ymin = data.min(axis = 1)
         xmax, ymax = data.max(axis = 1)
 
-        xmax, xmin = tuple(np.array([xmax, xmin]) + 0.25*(xmax - xmin)*np.array([1, -1]))
-        ymax, ymin = tuple(np.array([ymax, ymin]) + 0.25*(ymax - ymin)*np.array([1, -1]))
+        xmax, xmin = tuple(np.array([xmax, xmin]) + 0.1*(xmax - xmin)*np.array([1, -1]))
+        ymax, ymin = tuple(np.array([ymax, ymin]) + 0.1*(ymax - ymin)*np.array([1, -1]))
 
         ####### Obtain KDE  
 
@@ -211,8 +211,8 @@ class regret_and_h2h_figure:
         #base = pyplot.gca().transData
         #rot = transforms.Affine2D().rotate_deg(180)
         axt.plot(x, dx, color = 'black')
-        axt.fill_between(x, 0, dx, where = x >= 49.9, alpha= 1, color = '#003D7C')
-        axt.fill_between(x, 0, dx, where = x <= 50, alpha= 1, color = '#EF7C00')
+        axt.fill_between(x, 0, dx, where = x >= 49.9, alpha= 1, color = '#EF7C00')
+        axt.fill_between(x, 0, dx, where = x <= 50, alpha= 1, color = '#003D7C')
 
     #     axt.invert_yaxis()
 
