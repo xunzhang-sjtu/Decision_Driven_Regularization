@@ -22,6 +22,47 @@ class DDR_Problem_Evaluation:
 
         return np.asarray(cost_pred_arr)
     
+
+    def compute_DDR_out_of_sample_Cost_with_constr(self,c_pred,c_oracle_avg,c_oracle_real,data_generation_process,with_noise,A,b):
+        y_sol = self.solve_DDR(c_pred, A, b)
+        if data_generation_process == "DDR_Data_Generation":
+            cost_pred_arr = []
+            if with_noise:
+                for j in range(np.shape(c_pred)[0]):
+                    cost_real = y_sol[j,:] @ c_oracle_real[j,:].T
+                    cost_pred_arr.append(cost_real)
+            else:
+                for j in range(np.shape(c_pred)[0]):
+                    cost_real = y_sol[j,:] @ c_oracle_avg[j,:].T
+                    cost_pred_arr.append(cost_real)
+
+        return np.asarray(cost_pred_arr)
+    
+
+    def solve_DDR(self,c_pred, A,b):
+        N,d = c_pred.shape
+        a,d = A.shape
+        m = Model("TSP")
+        #m.setParam("DualReductions",0) 
+        m.setParam('OutputFlag', 0)
+
+        y_ind = tuplelist([(n,i) for n in range(N) for i in range(d)])
+
+        y_tsp = m.addVars(y_ind, vtype=GRB.BINARY)
+
+        m.setObjective( quicksum(c_pred[n][i]*y_tsp[n,i] for i in range(d) for n in range(N)), GRB.MINIMIZE)
+        m.addConstrs( quicksum( y_tsp[n,i] for i in range(d) ) == 1 for n in range(N) )
+        m.addConstrs( quicksum( A[k,i]*y_tsp[n,i] for i in range(d) ) <= b[k] for k in range(a) for n in range(N) )
+        m.optimize()
+
+        y_tsp = m.getAttr('x', y_tsp)
+
+        y = []
+        for n in range(N):
+            y.append([y_tsp[(n,i)] for i in range(d)])
+        return np.array(y)
+
+
     def decision_finder(self,z):
         N,d = z.shape
         y = np.float64((z == np.min(z, axis = np.array(z).ndim - 1, keepdims=True)).view('i1'))
