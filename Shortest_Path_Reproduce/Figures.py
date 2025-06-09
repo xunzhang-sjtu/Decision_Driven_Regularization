@@ -225,5 +225,5 @@ class regret_and_h2h_figure:
 
         ####### Bring the marginals closer to the scatter plot and save eps file
         fig.tight_layout(pad = 1)
-        plt.savefig(figure_name + '.eps', format='eps')
+        # plt.savefig(figure_name + '.eps', format='eps')
         plt.savefig(figure_name + '.pdf', format='pdf')
