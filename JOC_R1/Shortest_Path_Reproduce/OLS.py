@@ -6,7 +6,8 @@ from sklearn.linear_model import MultiTaskLassoCV
 from sklearn.model_selection import RepeatedKFold
 from sklearn.linear_model import RidgeCV
 # from Shortest_Path_Model import My_ShortestPathModel
-
+from Performance import performance_evaluation
+perfs = performance_evaluation()
 import warnings
 
 class ols_method:
@@ -105,3 +106,35 @@ class ols_method:
 #         with open(DataPath_seed +'rst_OLS.pkl', "wb") as tf:
 #             pickle.dump(rst,tf)
 #         return cost_OLS
+
+
+
+class OLS_Processing:
+    def __init__(self):
+        self.ols_method_obj = ols_method()
+
+    def Implement_OLS(self,arcs, grid,mis,bump,W_star_all,x_test_all,noise_test_all,x_train_all,c_train_all,iteration_all,num_feat,data_generation_process):
+        ols_method_obj = self.ols_method_obj
+        
+        W_ols_all = {}; w0_ols_all = {}; t_ols_all = {}; obj_ols_all = {}
+        cost_OLS_Post = {}; cost_OLS_Ante = {}
+        for iter in iteration_all:
+            # compute OLS performance
+            W_ols_all[iter], w0_ols_all[iter], t_ols_all[iter], obj_ols_all[iter] = ols_method_obj.ols_solver("",x_train_all[iter], c_train_all[iter])
+            cost_dem = (W_ols_all[iter] @ x_test_all[iter].T).T + w0_ols_all[iter]
+
+            if data_generation_process == "SPO_Data_Generation":
+                cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T)/np.sqrt(num_feat) + 3
+                cost_oracle_pred = (cost_oracle_ori ** mis + 1).T
+                # cost_OLS_Post[iter] = perfs.compute_SPO_out_of_sample_Cost_Ex_Post(arcs, grid,cost_dem,cost_oracle_pred,noise_test_all[iter])
+                cost_OLS_Ante[iter] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_dem,cost_oracle_pred)
+
+            if data_generation_process == "DDR_Data_Generation":
+                cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T) + bump
+                cost_oracle_pred = (cost_oracle_ori ** mis).T
+                cost_OLS_Ante[iter] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_dem,cost_oracle_pred)
+
+            if iter % 20 == 0 and iter > 0:
+                # print("OLS: iter=",iter,",cost_OLS_Post =",np.nanmean(cost_OLS_Post[iter]),",cost_OLS_Ante=",np.nanmean(cost_OLS_Ante[iter]))
+                print("OLS: iter=",iter,",cost_OLS_Ante=",np.nanmean(cost_OLS_Ante[iter]))
+        return cost_OLS_Post,cost_OLS_Ante

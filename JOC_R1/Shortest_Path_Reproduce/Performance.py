@@ -90,26 +90,49 @@ class performance_evaluation:
             cost_pred_arr.append(cost_real)
         return np.asarray(cost_pred_arr)
 
+class H2h_Regret_Evaluation:
+    def __init__(self):
+        pass
 
-
-    # def cross_compare2plus(self,c_item, c_base, c_oracle):
-    #     N = len(c_item)
-    #     c_diff = c_base - c_item
-    #     lbel = np.zeros((N,1))
+    def cross_compare2plus(self,c_item, c_base, c_oracle):
+        N = len(c_item)
+        c_diff = c_base - c_item
+        lbel = np.zeros((N,1))
         
-    #     equals = np.sum(c_diff == 0)
-    #     wins = np.sum(c_diff > 0) # indicate num of c_item is lower than c_base
-    #     lose = np.sum(c_diff < 0)
+        equals = np.sum(c_diff == 0)
+        wins = np.sum(c_diff > 0) # indicate num of c_item is lower than c_base
+        lose = np.sum(c_diff < 0)
         
-    #     lbel[c_diff < 0] = 1
-    #     lbel[c_diff > 0] = -1
+        lbel[c_diff < 0] = 1
+        lbel[c_diff > 0] = -1
         
-    # #     print(N, equals, wins, lose)
-    #     if N == equals:
-    #         win_ratio = 0.5
-    #     else:
-    #         win_ratio = wins/(N - equals)
-    #     cost_reduction = (np.mean(c_diff))/np.abs(np.mean(c_base))
-    #     regret_reduction = (np.mean(c_diff))/np.abs(np.mean(c_base) - np.mean(c_oracle))
-    #     return win_ratio, cost_reduction, regret_reduction
+    #     print(N, equals, wins, lose)
+        if N == equals:
+            win_ratio = 0.5
+        else:
+            win_ratio = wins/(N - equals)
+        cost_reduction = (np.nanmean(c_diff))/np.abs(np.nanmean(c_base))
+        if np.nanmean(c_base) - np.nanmean(c_oracle) <= 1e-6:
+            regret_reduction = 0.0
+        else:
+            regret_reduction = (np.nanmean(c_diff))/np.abs(np.nanmean(c_base) - np.nanmean(c_oracle))
+        return win_ratio, cost_reduction, regret_reduction
     
+    def calculate_h2h_regret(self,mu,lamb,iteration_all,cost_DDR_Post_all,cost_OLS_Post_all,cost_Oracle_Post_all,cost_DDR_Ante_all,cost_OLS_Ante_all,cost_Oracle_Ante_all):
+        ### Post Result
+        h2h_ = np.zeros(len(iteration_all)); cost_rd_ = np.zeros(len(iteration_all)); regret_rd_ = np.zeros(len(iteration_all))
+        # for iter_index in range(len(iteration_all)):
+        #     iter = iteration_all[iter_index]
+        #     h2h_[iter_index],cost_rd_[iter_index],regret_rd_[iter_index] = cross_compare2plus(cost_DDR_Post_all[iter,mu,lamb], cost_OLS_Post_all[iter], cost_Oracle_Post_all[iter])
+        # regret_post = np.round( len(regret_rd_[regret_rd_ > 0.0])/len(regret_rd_),4 )
+        # h2h_post = np.round( len(h2h_[h2h_ >= 0.5])/len(h2h_),4 )
+
+        ### Ante Result
+        h2h_ = np.zeros(len(iteration_all)); cost_rd_ = np.zeros(len(iteration_all)); regret_rd_ = np.zeros(len(iteration_all))
+        for iter_index in range(len(iteration_all)):
+            iter = iteration_all[iter_index]
+            h2h_[iter_index],cost_rd_[iter_index],regret_rd_[iter_index] = self.cross_compare2plus(cost_DDR_Ante_all[iter,mu,lamb], cost_OLS_Ante_all[iter], cost_Oracle_Ante_all[iter])
+        regret_ante = np.round( len(regret_rd_[regret_rd_ > 0.0])/len(regret_rd_),4 )
+        h2h_ante = np.round( len(h2h_[h2h_ >= 0.5])/len(h2h_),4 )
+        # return h2h_post,regret_post,h2h_ante,regret_ante
+        return h2h_ante,regret_ante

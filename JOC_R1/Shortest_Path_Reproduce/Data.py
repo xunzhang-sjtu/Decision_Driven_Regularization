@@ -2,6 +2,8 @@ import numpy as np
 from scipy.stats import bernoulli
 import pickle
 import os
+import pathlib
+
 
 class data_generation:
     def __init__(self):
@@ -226,3 +228,23 @@ class data_generation:
 
 
 
+class Data_Simulator:
+    def __init__(self):
+        self.generator = data_generation()
+
+    def Simulator(self,DataPath,lower, upper, p, d, coef_seed,iteration_all,num_test, num_train, alpha,mis,data_generation_process,x_dist, e_dist, x_low, x_up, x_mean, x_var, bump):
+        # from Data import data_generation
+        data_gen = self.generator
+        # W_star = data_gen.generate_truth(DataPath,lower, upper, p, d, coef_seed,data_generation_process) 
+        # print("W_star = ",W_star[0,:])
+        np.random.seed(coef_seed)
+        # random.seed(coef_seed)
+        # seed_arr = random.sample(range(1, 10000 + 1), len(iteration_all))
+        x_test_all = {}; c_test_all = {}; x_train_all = {}; c_train_all = {}; W_star_all = {}; noise_train_all = {}; noise_test_all = {}
+        for iter in iteration_all:
+            DataPath_iter = DataPath +"iter="+str(iter)+"/"
+            pathlib.Path(DataPath_iter).mkdir(parents=True, exist_ok=True)
+            W_star = data_gen.generate_truth(DataPath_iter,lower, upper, p, d, iter,data_generation_process) 
+            x_test_all[iter], c_test_all[iter], x_train_all[iter], c_train_all[iter], noise_train_all[iter],noise_test_all[iter],W_star_all[iter] \
+            = data_gen.generate_samples(iter,DataPath_iter,p, d, num_test, num_train, alpha, W_star, mis, num_test, data_generation_process, x_dist, e_dist, x_low, x_up, x_mean, x_var, bump) 
+        return x_test_all, c_test_all, x_train_all, c_train_all, noise_train_all,noise_test_all,W_star_all
