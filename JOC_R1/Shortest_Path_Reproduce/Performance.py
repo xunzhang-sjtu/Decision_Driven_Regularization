@@ -136,3 +136,37 @@ class H2h_Regret_Evaluation:
         h2h_ante = np.round( len(h2h_[h2h_ >= 0.5])/len(h2h_),4 )
         # return h2h_post,regret_post,h2h_ante,regret_ante
         return h2h_ante,regret_ante
+    
+    def calculate_DDR_vs_Others_h2h_regret(self,mu,lamb,iteration_all,cost_DDR_Ante_all,cost_other_all,cost_Oracle_Ante_all):
+        
+        h2h_ = np.zeros(len(iteration_all)); cost_rd_ = np.zeros(len(iteration_all)); regret_rd_ = np.zeros(len(iteration_all))
+        for iter_index in range(len(iteration_all)):
+            iter = iteration_all[iter_index]
+            h2h_[iter_index],cost_rd_[iter_index],regret_rd_[iter_index] = self.cross_compare2plus(cost_DDR_Ante_all[iter,mu,lamb], cost_other_all[iter], cost_Oracle_Ante_all[iter])
+
+        # return h2h_post,regret_post,h2h_ante,regret_ante
+        return h2h_,regret_rd_
+
+
+
+    def compute_h2h_regret_DDR_vs_OLS_diff_setting(self,Data_LSM,mu,lamb,iteration_all,params_all,num_train,deg,e,d,p,x_dist,num_test,DataPath_Parent,which_param):
+        regret_ = np.zeros(len(params_all)); h2h_ = np.zeros(len(params_all))
+
+        for _index in range(len(params_all)):
+            param = params_all[_index]
+            if which_param == 'num_train':
+                DataPath = DataPath_Parent + f"data_size={param}_deg={deg}_e={e}_d={d}_p={p}_x_dist={x_dist}_num_test={num_test}/"
+            if which_param == 'deg':
+                DataPath = DataPath_Parent + f"data_size={num_train}_deg={param}_e={e}_d={d}_p={p}_x_dist={x_dist}_num_test={num_test}/"
+            if which_param == 'e':
+                DataPath = DataPath_Parent + f"data_size={num_train}_deg={deg}_e={param}_d={d}_p={p}_x_dist={x_dist}_num_test={num_test}/"
+            if which_param == 'd':
+                DataPath = DataPath_Parent + f"data_size={num_train}_deg={deg}_e={e}_d={param}_p={p}_x_dist={x_dist}_num_test={num_test}/"
+            if which_param == 'p':
+                DataPath = DataPath_Parent + f"data_size={num_train}_deg={deg}_e={e}_d={d}_p={param}_x_dist={x_dist}_num_test={num_test}/"
+            print(DataPath)
+            cost_Oracle_Post_all,cost_Oracle_Ante_all,cost_OLS_Post_all,cost_OLS_Ante_all,cost_DDR_Post_all,cost_DDR_Ante_all = Data_LSM.load_cost_data(DataPath)
+            h2h_[_index], regret_[_index] = self.calculate_h2h_regret(mu,lamb,iteration_all,\
+                                cost_DDR_Post_all,cost_OLS_Post_all,cost_Oracle_Post_all,\
+                                    cost_DDR_Ante_all,cost_OLS_Ante_all,cost_Oracle_Ante_all)
+        return regret_, h2h_
