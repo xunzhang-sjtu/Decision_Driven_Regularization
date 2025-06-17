@@ -183,8 +183,8 @@ class PyEPO_Method:
 
             if method_name == "ltr":
                 # print("=========== Run LTR,",DataPath_seed)
-                ptltr,W_EPO_mat,w0_EPO = pyepo.func.pointwiseLTR(optmodel, processes=2, solve_ratio=0.05, dataset=dataset_train)
-                cost_LTR = self.Implement_PyEPO(arcs,grid,num_feat, ptltr, method_name, loader_train,num_epochs, 1e-3)
+                ptltr = pyepo.func.pointwiseLTR(optmodel, processes=2, solve_ratio=0.05, dataset=dataset_train)
+                cost_LTR,W_EPO_mat,w0_EPO = self.Implement_PyEPO(arcs,grid,num_feat, ptltr, method_name, loader_train,num_epochs, 1e-3)
                 rst_EPO["LTR"] = cost_LTR
 
         return W_EPO_mat,w0_EPO
