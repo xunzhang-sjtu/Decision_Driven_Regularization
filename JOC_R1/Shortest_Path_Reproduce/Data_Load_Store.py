@@ -21,23 +21,24 @@ class Load_Store_Methods:
                 pickle.dump(W_star_all,tf)
 
     def load_cost_data(self,DataPath):
-        with open(DataPath+'cost_OLS_Post_all.pkl', "rb") as tf:
-            cost_OLS_Post_all = pickle.load(tf)
+        # with open(DataPath+'cost_OLS_Post_all.pkl', "rb") as tf:
+        #     cost_OLS_Post_all = pickle.load(tf)
         with open(DataPath+'cost_OLS_Ante_all.pkl', "rb") as tf:
             cost_OLS_Ante_all = pickle.load(tf)
 
-        with open(DataPath+'cost_Oracle_Post_all.pkl', "rb") as tf:
-            cost_Oracle_Post_all = pickle.load(tf)
+        # with open(DataPath+'cost_Oracle_Post_all.pkl', "rb") as tf:
+        #     cost_Oracle_Post_all = pickle.load(tf)
         with open(DataPath+'cost_Oracle_Ante_all.pkl', "rb") as tf:
             cost_Oracle_Ante_all = pickle.load(tf)
 
-        with open(DataPath+'cost_DDR_Post_all.pkl', "rb") as tf:
-            cost_DDR_Post_all = pickle.load(tf)
+        # with open(DataPath+'cost_DDR_Post_all.pkl', "rb") as tf:
+        #     cost_DDR_Post_all = pickle.load(tf)
         with open(DataPath+'cost_DDR_Ante_all.pkl', "rb") as tf:
             cost_DDR_Ante_all = pickle.load(tf)
 
-        return cost_Oracle_Post_all,cost_Oracle_Ante_all,cost_OLS_Post_all,cost_OLS_Ante_all,cost_DDR_Post_all,cost_DDR_Ante_all
-    
+        # return cost_Oracle_Post_all,cost_Oracle_Ante_all,cost_OLS_Post_all,cost_OLS_Ante_all,cost_DDR_Post_all,cost_DDR_Ante_all
+        return cost_Oracle_Ante_all,cost_OLS_Ante_all,cost_DDR_Ante_all
+
 
     def load_input_data(self,DataPath):
         with open(DataPath+'x_test_all.pkl', "rb") as tf:
