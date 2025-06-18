@@ -21,11 +21,11 @@ def set_Params(params_dir):
         'x_mean': 2,
         'x_var': 2,
         'bump': 100,
-        # 'grid_all':[(2,2),(3,3),(4,4),(5,5)],
-        'grid_all':[(3,3)],
+        'grid_all':[(2,2),(3,3),(4,4),(5,5)],
+        # 'grid_all':[(3,3)],
         'iteration_all': np.arange(0,100),
-        'mu_all':[0.75],
-        'lamb_all':[0.8],
+        'mu_all':np.round(np.arange(0.2,1.0,0.05),4),
+        'lamb_all':np.round(np.arange(0.2,1.0,0.05),4),
     }
     with open(params_dir+'Params.pkl', "wb") as tf:
         pickle.dump(Params,tf)
