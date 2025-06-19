@@ -113,15 +113,19 @@ class OLS_Processing:
     def __init__(self):
         self.ols_method_obj = ols_method()
 
-    def Implement_OLS(self,arcs, grid,mis,bump,W_star_all,x_test_all,noise_test_all,x_train_all,c_train_all,iteration_all,num_feat,data_generation_process):
+    def Implement_OLS(self,arcs, grid,mis,bump,W_star_all,x_test_all,c_test_all,x_train_all,c_train_all,iteration_all,num_feat,data_generation_process):
         ols_method_obj = self.ols_method_obj
         
         W_ols_all = {}; w0_ols_all = {}; t_ols_all = {}; obj_ols_all = {}
-        cost_OLS_Post = {}; cost_OLS_Ante = {}
+        cost_OLS_Post = {}; cost_OLS_Ante = {}; RMSE_in_all = {}; RMSE_out_all = {}
         for iter in iteration_all:
             # compute OLS performance
             W_ols_all[iter], w0_ols_all[iter], t_ols_all[iter], obj_ols_all[iter] = ols_method_obj.ols_solver("",x_train_all[iter], c_train_all[iter])
             cost_dem = (W_ols_all[iter] @ x_test_all[iter].T).T + w0_ols_all[iter]
+
+            cost_in = (W_ols_all[iter] @ x_train_all[iter].T).T + w0_ols_all[iter]
+            RMSE_in_all[iter] = np.sqrt(np.sum((cost_in - c_train_all[iter])**2)/len(cost_in[:,0]))
+            RMSE_out_all[iter] = np.sqrt(np.sum((cost_dem - c_test_all[iter])**2)/len(cost_dem[:,0]))
 
             if data_generation_process == "SPO_Data_Generation":
                 cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T)/np.sqrt(num_feat) + 3
@@ -137,4 +141,4 @@ class OLS_Processing:
             if iter % 20 == 0 and iter > 0:
                 # print("OLS: iter=",iter,",cost_OLS_Post =",np.nanmean(cost_OLS_Post[iter]),",cost_OLS_Ante=",np.nanmean(cost_OLS_Ante[iter]))
                 print("OLS: iter=",iter,",cost_OLS_Ante=",np.nanmean(cost_OLS_Ante[iter]))
-        return cost_OLS_Post,cost_OLS_Ante
+        return cost_OLS_Post,cost_OLS_Ante,RMSE_in_all,RMSE_out_all
