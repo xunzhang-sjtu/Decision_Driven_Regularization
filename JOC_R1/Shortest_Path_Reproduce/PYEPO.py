@@ -230,3 +230,40 @@ class EPO_Processing:
                 # print(method_names,": iter=",iter,",cost_EPO_Post =",np.nanmean(cost_EPO_Post[iter]),",cost_EPO_Ante=",np.nanmean(cost_EPO_Ante[iter]))
                 print(method_names,": iter=",iter,",cost_EPO_Ante=",np.nanmean(cost_EPO_Ante[iter]))
         return cost_EPO_Post,cost_EPO_Ante,RMSE_in_all,RMSE_out_all
+    
+    def Implement_EPO_quad(self,DataPath,iteration_all,batch_size,num_epochs,method_names,W_star_all,bump,x_train_all,c_train_all,x_test_all,c_test_all,\
+                    arcs,grid,perfs,num_feat,mis,data_generation_process,x_train_quad_all,x_test_quad_all):
+        num_feat_quad = len(x_train_quad_all[0][0,:])
+        epo_runner = self.epo_runner
+        W_EPO_all = {}; w0_EPO_all = {}
+        cost_EPO_Post = {}; cost_EPO_Ante = {}; RMSE_in_all = {}; RMSE_out_all = {}
+        for iter in iteration_all:
+            DataPath_seed = DataPath +"iter="+str(iter)+"/"
+            pathlib.Path(DataPath_seed).mkdir(parents=True, exist_ok=True)
+            W_EPO_all[iter],w0_EPO_all[iter] = epo_runner.run(method_names,DataPath_seed,batch_size,num_feat_quad,grid,num_epochs,\
+                                            x_train_quad_all[iter],c_train_all[iter],arcs)
+            
+            cost_pred = (W_EPO_all[iter] @ x_test_quad_all[iter].T).T + w0_EPO_all[iter]
+            cost_in = (W_EPO_all[iter] @ x_train_quad_all[iter].T).T + w0_EPO_all[iter]
+            RMSE_in_all[iter] = np.sqrt(np.sum((cost_in - c_train_all[iter])**2)/len(cost_in[:,0]))
+            RMSE_out_all[iter] = np.sqrt(np.sum((cost_pred - c_test_all[iter])**2)/len(cost_pred[:,0]))
+
+            if data_generation_process == "SPO_Data_Generation":
+                cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T)/np.sqrt(num_feat) + 3
+                non_negative_cols = (cost_oracle_ori > 0).all(axis=0)
+                cost_oracle_ori = cost_oracle_ori[:,non_negative_cols]
+                cost_oracle_pred = (cost_oracle_ori ** mis + 1).T
+                
+                cost_pred = cost_pred[non_negative_cols,:]
+                # cost_EPO_Post[iter] = perfs.compute_SPO_out_of_sample_Cost_Ex_Post(arcs, grid,cost_pred,cost_oracle_pred,noise_test_all[iter])
+                cost_EPO_Ante[iter] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_pred,cost_oracle_pred)
+
+            if data_generation_process == "DDR_Data_Generation":
+                cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T) + bump
+                cost_oracle_pred = (cost_oracle_ori ** mis).T
+                cost_EPO_Ante[iter] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_pred,cost_oracle_pred)
+
+            if iter % 20 == 0 and iter > 0:
+                # print(method_names,": iter=",iter,",cost_EPO_Post =",np.nanmean(cost_EPO_Post[iter]),",cost_EPO_Ante=",np.nanmean(cost_EPO_Ante[iter]))
+                print(method_names,": iter=",iter,",cost_EPO_Ante=",np.nanmean(cost_EPO_Ante[iter]))
+        return cost_EPO_Post,cost_EPO_Ante,RMSE_in_all,RMSE_out_all

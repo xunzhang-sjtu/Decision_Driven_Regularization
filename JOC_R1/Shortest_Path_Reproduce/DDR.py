@@ -90,3 +90,35 @@ class DDR_Processing:
                 #       ",cost_DDR_Ante =",np.nanmean(cost_DDR_Ante[iter,mu,lamb]))
                 print("DDR: iter=",iter,",mu=",mu,",lamb=",lamb,",cost_DDR_Ante =",np.nanmean(cost_DDR_Ante[iter,mu,lamb]))
         return cost_DDR_Post,cost_DDR_Ante,RMSE_in_all,RMSE_out_all
+    
+    def Implement_DDR_quad(self,mu_all,lamb_all,arcs, grid,mis,bump,W_star_all,x_test_all,c_test_all,x_train_all,c_train_all,iteration_all,num_feat,data_generation_process,x_train_quad_all,x_test_quad_all):
+        ddr_object = self.ddr_object
+        num_nodes = grid[0] * grid[0]
+
+        w0_ddr_dict = {}; W_ddr_dict = {}
+        cost_DDR_Post = {}; cost_DDR_Ante = {}; RMSE_in_all = {};RMSE_out_all = {}
+        for iter in iteration_all:
+            for mu in mu_all:
+                for lamb in lamb_all:
+                    w0_ddr_dict[iter,mu,lamb],W_ddr_dict[iter,mu,lamb],alpha_rst,obj_ddr = ddr_object.solve_DDR(arcs,lamb,mu,num_nodes,x_train_quad_all[iter],c_train_all[iter])
+                    cost_pred = (W_ddr_dict[iter,mu,lamb] @ x_test_quad_all[iter].T).T + w0_ddr_dict[iter,mu,lamb]
+                    cost_in = (W_ddr_dict[iter,mu,lamb] @ x_train_quad_all[iter].T).T + w0_ddr_dict[iter,mu,lamb]
+                    RMSE_in_all[iter,mu,lamb] = np.sqrt(np.sum((cost_in - c_train_all[iter])**2)/len(cost_in[:,0]))
+                    RMSE_out_all[iter,mu,lamb] = np.sqrt(np.sum((cost_pred - c_test_all[iter])**2)/len(cost_pred[:,0]))
+
+                    if data_generation_process == "SPO_Data_Generation":
+                        cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T)/np.sqrt(num_feat) + 3
+                        cost_oracle_pred = (cost_oracle_ori ** mis + 1).T
+                        # cost_DDR_Post[iter,mu,lamb] = perfs.compute_SPO_out_of_sample_Cost_Ex_Post(arcs, grid,cost_pred,cost_oracle_pred,noise_test_all[iter])
+                        cost_DDR_Ante[iter,mu,lamb] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_pred,cost_oracle_pred)
+
+                    if data_generation_process == "DDR_Data_Generation":
+                        cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T) + bump
+                        cost_oracle_pred = (cost_oracle_ori ** mis).T
+                        cost_DDR_Ante[iter,mu,lamb] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_pred,cost_oracle_pred)
+                    # print("DDR: iter=",iter,",mu=",mu,",lamb=",lamb,",cost_DDR_Ante =",np.nanmean(cost_DDR_Ante[iter,mu,lamb]))
+            if iter % 20 == 0 and iter > 0:
+                # print("DDR: iter=",iter,",mu=",mu,",lamb=",lamb,",cost_DDR_Post =",np.nanmean(cost_DDR_Post[iter,mu,lamb]),
+                #       ",cost_DDR_Ante =",np.nanmean(cost_DDR_Ante[iter,mu,lamb]))
+                print("DDR: iter=",iter,",mu=",mu,",lamb=",lamb,",cost_DDR_Ante =",np.nanmean(cost_DDR_Ante[iter,mu,lamb]))
+        return cost_DDR_Post,cost_DDR_Ante,RMSE_in_all,RMSE_out_all
