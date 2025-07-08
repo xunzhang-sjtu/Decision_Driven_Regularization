@@ -1,4 +1,3 @@
-# build optModel
 from pyepo.model.grb import optGrbModel
 import numpy as np
 import pickle
@@ -96,7 +95,7 @@ class PyEPO_Method:
     # train model
     def Implement_PyEPO(self,arcs,grid,num_feat, loss_func, method_name, loader_train,num_epochs, lr):
         import time
-        import torch
+        # import torch
         from Performance import performance_evaluation
         perfs = performance_evaluation()
         from Shortest_Path_Model import My_ShortestPathModel
@@ -225,7 +224,7 @@ class EPO_Processing:
                 cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T) + bump
                 cost_oracle_pred = (cost_oracle_ori ** mis).T
                 cost_EPO_Ante[iter] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_pred,cost_oracle_pred)
-
+            # print(method_names,": iter=",iter,",cost_EPO_Ante=",np.nanmean(cost_EPO_Ante[iter]))
             if iter % 20 == 0 and iter > 0:
                 # print(method_names,": iter=",iter,",cost_EPO_Post =",np.nanmean(cost_EPO_Post[iter]),",cost_EPO_Ante=",np.nanmean(cost_EPO_Ante[iter]))
                 print(method_names,": iter=",iter,",cost_EPO_Ante=",np.nanmean(cost_EPO_Ante[iter]))
@@ -233,7 +232,7 @@ class EPO_Processing:
     
     def Implement_EPO_quad(self,DataPath,iteration_all,batch_size,num_epochs,method_names,W_star_all,bump,x_train_all,c_train_all,x_test_all,c_test_all,\
                     arcs,grid,perfs,num_feat,mis,data_generation_process,x_train_quad_all,x_test_quad_all):
-        num_feat_quad = len(x_train_quad_all[0][0,:])
+        num_feat_quad = len(x_train_quad_all[iteration_all[0]][0,:])
         epo_runner = self.epo_runner
         W_EPO_all = {}; w0_EPO_all = {}
         cost_EPO_Post = {}; cost_EPO_Ante = {}; RMSE_in_all = {}; RMSE_out_all = {}
@@ -262,7 +261,7 @@ class EPO_Processing:
                 cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T) + bump
                 cost_oracle_pred = (cost_oracle_ori ** mis).T
                 cost_EPO_Ante[iter] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_pred,cost_oracle_pred)
-
+            # print(method_names," quadratic: iter=",iter,",cost_EPO_Ante=",np.nanmean(cost_EPO_Ante[iter]))
             if iter % 20 == 0 and iter > 0:
                 # print(method_names,": iter=",iter,",cost_EPO_Post =",np.nanmean(cost_EPO_Post[iter]),",cost_EPO_Ante=",np.nanmean(cost_EPO_Ante[iter]))
                 print(method_names,": iter=",iter,",cost_EPO_Ante=",np.nanmean(cost_EPO_Ante[iter]))

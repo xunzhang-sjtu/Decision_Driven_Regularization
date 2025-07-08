@@ -138,6 +138,7 @@ class OLS_Processing:
                 cost_oracle_pred = (cost_oracle_ori ** mis).T
                 cost_OLS_Ante[iter] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_dem,cost_oracle_pred)
 
+            # print("OLS: iter=",iter,",cost_OLS_Ante=",np.nanmean(cost_OLS_Ante[iter]))
             if iter % 20 == 0 and iter > 0:
                 # print("OLS: iter=",iter,",cost_OLS_Post =",np.nanmean(cost_OLS_Post[iter]),",cost_OLS_Ante=",np.nanmean(cost_OLS_Ante[iter]))
                 print("OLS: iter=",iter,",cost_OLS_Ante=",np.nanmean(cost_OLS_Ante[iter]))
@@ -168,7 +169,7 @@ class OLS_Processing:
                 cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T) + bump
                 cost_oracle_pred = (cost_oracle_ori ** mis).T
                 cost_OLS_Ante[iter] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_dem,cost_oracle_pred)
-
+            # print("OLS quadratic: iter=",iter,",cost_OLS_Ante=",np.nanmean(cost_OLS_Ante[iter]))
             if iter % 20 == 0 and iter > 0:
                 # print("OLS: iter=",iter,",cost_OLS_Post =",np.nanmean(cost_OLS_Post[iter]),",cost_OLS_Ante=",np.nanmean(cost_OLS_Ante[iter]))
                 print("OLS: iter=",iter,",cost_OLS_Ante=",np.nanmean(cost_OLS_Ante[iter]))

@@ -59,7 +59,7 @@ def figure_plot_upright(all_x, all_y, figure_name, size = (5, 5), move = [-0.07,
     axr.plot(dy, y, color = 'black')
 
     if ypio == 0:
-        axr.fill_betweenx(y, 0, dy, where = y <= 0.01, alpha = 1, color='#EF7C00')
+        axr.fill_betweenx(y, 0, dy, where = y <= -0.0001, alpha = 1, color='#EF7C00')
         axr.fill_betweenx(y, 0, dy, where = y >= 0, alpha = 1, color='#003D7C')
 
         leftarea = np.round( sum(n <= 0 for n in all_y)/len(all_y),2 )

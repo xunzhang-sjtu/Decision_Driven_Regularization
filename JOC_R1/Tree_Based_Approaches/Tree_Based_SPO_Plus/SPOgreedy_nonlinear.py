@@ -58,11 +58,11 @@ import Oracle
 
 
 #problem parameters
-dim = 3
+dim = 5
 grid = (dim,dim)
 d = (grid[0] - 1) * (grid[0] - 1) * 2 + 2 * (grid[0] - 1) # num of arcs
 num_train = 100
-num_feat = 5 # size of feature
+num_feat = 1 # size of feature
 num_test = 1000
 e = 0.5 # scale of normal std or the range of uniform. For the error term
 lower = 0 # coef lower bound
@@ -85,8 +85,9 @@ reps_st = 0 #0 #can be as low as 0
 reps_end = 100 #1 #can be as high as 50
 iteration_all = np.arange(reps_st,reps_end)
 
-mu_all = np.round(np.arange(0.1,1.0,0.05),4)
-lamb_all = np.round(np.arange(0.1,1.0,0.05),4)
+mu_all = np.round(np.arange(0.1,1.0,0.1),4)
+lamb_all = np.round(np.arange(0.1,1.0,0.1),4)
+
 
 valid_frac = 0.0 #set aside valid_frac of training data for validation
 ########################################

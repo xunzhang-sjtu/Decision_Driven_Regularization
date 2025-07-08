@@ -11,6 +11,22 @@ class DDR_method():
     def __init__(self):
         pass
 
+    # def obtain_two_obj_parts(self,arcs,num_nodes,x_train,c_train,W_ddr,w0_ddr,alpha):
+    #     N,p = x_train.shape
+    #     N,d = c_train.shape
+
+    #     expr_obj = 0
+    #     err = []
+    #     for n in range(N):
+    #         cost_true_tem = c_train[n]
+    #         expr_obj = expr_obj + alpha[n,num_nodes-1].x - alpha[n,0].x
+    #         for ind in range(len(arcs)):
+    #             cost_pred_tem = sum([W_ddr[ind,j] * x_train[n,j] for j in range(p)]) + w0_ddr[ind]
+    #             err.append(cost_true_tem[ind] - cost_pred_tem)
+        
+    #     return 1
+
+
     def solve_DDR(self,arcs,lamb,mu_fixed,num_nodes,x_train,c_train):
         
         N,p = x_train.shape
@@ -52,6 +68,7 @@ class DDR_method():
         w0_ddr_val = [w0_DDR_rst[i] for i in range(d)]
 
         alpha_rst = m.getAttr('x', alpha)
+        # self.obtain_two_obj_parts(arcs,num_nodes,x_train,c_train,W_DDR_rst,w0_DDR_rst,alpha)
         return w0_ddr_val,W_ddr_val,alpha_rst,m.ObjVal
     
 
@@ -84,7 +101,8 @@ class DDR_Processing:
                         cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T) + bump
                         cost_oracle_pred = (cost_oracle_ori ** mis).T
                         cost_DDR_Ante[iter,mu,lamb] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_pred,cost_oracle_pred)
-                    # print("DDR: iter=",iter,",mu=",mu,",lamb=",lamb,",cost_DDR_Ante =",np.nanmean(cost_DDR_Ante[iter,mu,lamb]))
+            #         print("DDR: iter=",iter,",mu=",mu,",lamb=",lamb,",cost_DDR_Ante =",np.nanmean(cost_DDR_Ante[iter,mu,lamb]))
+            # print()
             if iter % 20 == 0 and iter > 0:
                 # print("DDR: iter=",iter,",mu=",mu,",lamb=",lamb,",cost_DDR_Post =",np.nanmean(cost_DDR_Post[iter,mu,lamb]),
                 #       ",cost_DDR_Ante =",np.nanmean(cost_DDR_Ante[iter,mu,lamb]))
@@ -116,7 +134,8 @@ class DDR_Processing:
                         cost_oracle_ori = (W_star_all[iter] @ x_test_all[iter].T) + bump
                         cost_oracle_pred = (cost_oracle_ori ** mis).T
                         cost_DDR_Ante[iter,mu,lamb] = perfs.compute_SPO_out_of_sample_Cost_Ex_Ante(arcs, grid,cost_pred,cost_oracle_pred)
-                    # print("DDR: iter=",iter,",mu=",mu,",lamb=",lamb,",cost_DDR_Ante =",np.nanmean(cost_DDR_Ante[iter,mu,lamb]))
+            #         print("DDR quadratic: iter=",iter,",mu=",mu,",lamb=",lamb,",cost_DDR_Ante =",np.nanmean(cost_DDR_Ante[iter,mu,lamb]))
+            # print()
             if iter % 20 == 0 and iter > 0:
                 # print("DDR: iter=",iter,",mu=",mu,",lamb=",lamb,",cost_DDR_Post =",np.nanmean(cost_DDR_Post[iter,mu,lamb]),
                 #       ",cost_DDR_Ante =",np.nanmean(cost_DDR_Ante[iter,mu,lamb]))
