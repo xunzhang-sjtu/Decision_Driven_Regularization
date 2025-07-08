@@ -37,12 +37,10 @@
 
 
 ### Quadratic term
-- File: [Baseline_Quadratic.ipynb](/Shortest_Path_Reproduce/Baseline_Quadratic.ipynb)
-
-- <font color="blue">：Baseline setting 上考虑所有的quadratic term, 包括自身和交叉项，结果不如不考虑quadratic term </font>
-- 只考虑自身的quadratic term <font color="red">：中断了该实验，因为要去做MIP的实验，6.23 上午9点</font>
-- 增加sample size 数量 <font color="red">：tbd </font>
-- 增加model misspecification <font color="red">：tbd </font>
+1. 使用了和model misspecification 一样的代码
+    - File: [Experiment_Model_Mis_Data_Size.ipynb](/Shortest_Path_Reproduce/Experiment_Model_Mis_Data_Size.ipynb)
+    - Figure: [Experiment_Model_Mis_Data_Size.ipynb](/Shortest_Path_Reproduce/Experiment_Model_Mis_Data_Size.ipynb)
+    - Data: “/Data_JOC_R1/Shortest_Path_Rep/Model_Mis_Data_SizeSPO_Data_Generation/3by3_grid_all/”
 
 
 ### Various Setting
@@ -94,3 +92,4 @@ else:
 3. S = 200, 2*2 grid, max depth = 3, p = 1, deg = 1.0, lambda = 500, mu = np.round(np.arange(0.85,1.0,0.025),4), 
     - 可以找到比SPO好，但没有MSE好，
     - '/Data_JOC_R1/Shortest_Path_Tree/'+str(grid[0])+'by'+str(grid[1])+'_grid' +'_depth_'+str(max_depth)+"_0628/"
+4. <font color="red">尝试tree-based data generation process</font>

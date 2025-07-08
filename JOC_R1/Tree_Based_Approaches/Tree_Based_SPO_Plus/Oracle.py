@@ -24,3 +24,16 @@ def compute_out_of_sample_cost(deg,W_star,x_test,c_test,num_feat,dim):
         cost_Oracle.append(decision_arr @ cost_oracle_pred[n,:])
 
     return np.asarray(cost_Oracle),cost_oracle_pred
+
+
+def compute_out_of_sample_cost_tree(c_test,dim):
+
+    Edge_list,Edge_dict = get_Edges(dim)
+    [N_obs, N_routes] = np.shape(c_test)
+    cost_Oracle = []
+    for n in range(N_obs):
+        decision_dict = dps.shortest_path(c_test[n,:])['weights']
+        decision_arr = np.asarray([decision_dict[d_key] for d_key in Edge_list])
+        cost_Oracle.append(decision_arr @ c_test[n,:])
+
+    return np.asarray(cost_Oracle)

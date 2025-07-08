@@ -10,7 +10,7 @@ This particular file sets up a two-road shortest path decision problem
 from gurobipy import *
 import numpy as np
 
-dim = 5 #(creates dim * dim grid, where dim = number of vertices)
+dim = 3 #(creates dim * dim grid, where dim = number of vertices)
 Edge_list = [(i,i+1) for i in range(1, dim**2 + 1) if i % dim != 0]
 Edge_list += [(i, i + dim) for i in range(1, dim**2 + 1) if i <= dim**2 - dim]
 Edge_dict = {} #(assigns each edge to a unique integer from 0 to number-of-edges)
