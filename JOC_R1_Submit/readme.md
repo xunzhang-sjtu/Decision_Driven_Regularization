@@ -1,8 +1,5 @@
 # This file contains information about DDR
 
-## DDR application
-- File: [DDR_All_Results.ipynb](/DDR_Reproduce/DDR_All_Results.ipynb)
-
 
 ## Shortest Path
 
@@ -44,6 +41,9 @@
 - File: [Experiment_Own.py](Tree_Based_Approaches/Tree_Based_SPO_Plus/Experiment_Own.py)
 - Figure: [Figrue_Tree_based_Experiments.ipynb](Tree_Based_Approaches/Tree_Based_SPO_Plus/Figrue_Tree_based_Experiments.ipynb)
 - Data: “.../Data_JOC_R1_Submit/Shortest_Path_Tree/dim=3_depth_3_Tree_based_Data_Generation/result/Data_size=200/”
+
+## DDR application
+- File: [DDR_All_Results.ipynb](/DDR_Reproduce/DDR_All_Results.ipynb)
 
 
 
