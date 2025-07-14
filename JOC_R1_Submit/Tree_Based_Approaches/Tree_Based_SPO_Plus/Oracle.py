@@ -1,5 +1,5 @@
 import numpy as np 
-import decision_problem_solver as dps
+# import decision_problem_solver as dps
 
 def get_Edges(dim):
     # dim = 3 #(creates dim * dim grid, where dim = number of vertices)

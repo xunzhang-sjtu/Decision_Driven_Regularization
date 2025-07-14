@@ -6,7 +6,7 @@ from Optimization_Models import shortestPathModel
 import os
 import pickle
 import out_of_sample_perf as perf
-import Oracle
+# import Oracle
 
 from Data import data_generation
 data_gen = data_generation()
@@ -253,7 +253,7 @@ class CARTRegressor:
 #problem parameters
 dim = 3
 d = (dim - 1) * (dim - 1) * 2 + 2 * (dim - 1) # num of arcs
-num_train = 100
+num_train = 200
 num_feat = 1 # size of feature
 num_test = 1000
 e = 100 # scale of normal std or the range of uniform. For the error term
@@ -286,13 +286,13 @@ mu_all = [0.5]
 lamb_all = np.append(np.append(np.round(np.arange(0.1,1.0,0.2),4),np.arange(1.0,10.0,2.0)),np.arange(10,100,20))
 # lamb_all = np.append(lamb_all,np.arange(100,1000,200))
 lamb_all = np.arange(100,1000,50)
-# lamb_all = [0.5]
+lamb_all = [100]
 ########################################
 data_generation_process = "Tree_based_Data_Generation"
 # data_generation_process = "SPO_Data_Generation"
 current_directory = os.getcwd()
 grandparent_directory = os.path.dirname(os.path.dirname(current_directory))
-DataPath_parent = grandparent_directory + '/Data_JOC_R1/Shortest_Path_Tree/dim='+str(dim) +'_depth_'+str(max_depth)+"_Tree_based_Data_Generation/"
+DataPath_parent = grandparent_directory + '/Data_JOC_R1_Submit/Shortest_Path_Tree/dim='+str(dim) +'_depth_'+str(max_depth)+"_Tree_based_Data_Generation/"
 print("DataPath_parent:", DataPath_parent)
 result_dir = DataPath_parent +"result/Data_size="+str(num_train)+"/"
 pathlib.Path(result_dir).mkdir(parents=True, exist_ok=True)
@@ -361,7 +361,3 @@ with open(result_dir+'cost_SPO.pkl', "wb") as tf:
     pickle.dump(cost_SPO,tf)
 with open(result_dir+'cost_DDR.pkl', "wb") as tf:
     pickle.dump(cost_DDR,tf)
-
-# # 测试预测
-# y_pred = model.predict(X[:5])
-# print("Predictions:", y_pred)
